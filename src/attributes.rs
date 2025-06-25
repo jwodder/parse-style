@@ -225,6 +225,7 @@ impl Extend<Attribute> for AttributeSet {
 impl From<anstyle::Effects> for AttributeSet {
     /// Convert an [`anstyle::Effects`] to an `AttributeSet`
     ///
+    ///
     /// # Data Loss
     ///
     /// The following effects are discarded during conversion, as they have no
