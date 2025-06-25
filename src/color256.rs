@@ -8,7 +8,8 @@ use unicase::UniCase;
 /// Constants are provided for the initial 16 colors.
 ///
 /// `Color256` values can be [parsed][std::str::FromStr] from case-insensitive
-/// names (see [`name()`]) or from strings of the form `"color({index})"`.
+/// names (see [`Color256::name()`]) or from strings of the form
+/// `"color({index})"`.
 ///
 /// `Color256` values are [displayed][std::fmt::Display] as their lowercase
 /// names or, for colors without names, as strings of the form
