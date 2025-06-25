@@ -157,6 +157,41 @@ impl std::str::FromStr for RgbColor {
     }
 }
 
+#[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
+impl serde::Serialize for RgbColor {
+    fn serialize<S: serde::ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.collect_str(self)
+    }
+}
+
+#[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
+impl<'de> serde::Deserialize<'de> for RgbColor {
+    fn deserialize<D: serde::de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        struct Visitor;
+
+        impl serde::de::Visitor<'_> for Visitor {
+            type Value = RgbColor;
+
+            fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                f.write_str(r##"a string of the form "rgb(INT,INT,INT)" or "#xxxxxx""##)
+            }
+
+            fn visit_str<E>(self, input: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                input
+                    .parse::<RgbColor>()
+                    .map_err(|_| E::invalid_value(serde::de::Unexpected::Str(input), &self))
+            }
+        }
+
+        deserializer.deserialize_str(Visitor)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

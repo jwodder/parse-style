@@ -93,14 +93,20 @@
 //!
 //! The `parse-style` crate has the following optional features:
 //!
-//! - `anstyle` — Enable conversions between `parse-style` types and types from
-//!   the [`anstyle`](https://crates.io/crates/anstyle) crate
+//! - `anstyle` — Enables conversions between `parse-style` types and types
+//!   from the [`anstyle`](https://crates.io/crates/anstyle) crate
 //!
-//! - `crossterm` — Enable conversions between `parse-style` types and types
+//! - `crossterm` — Enables conversions between `parse-style` types and types
 //!   from the [`crossterm`](https://crates.io/crates/crossterm) crate
 //!
-//! - `ratatui` — Enable conversions between `parse-style` types and types from
-//!   the [`ratatui`](https://crates.io/crates/ratatui) crate
+//! - `ratatui` — Enables conversions between `parse-style` types and types
+//!   from the [`ratatui`](https://crates.io/crates/ratatui) crate
+//!
+//! - `serde` — Enables [`serde`](https://serde.rs) implementations for
+//!   (de)serializing `Style` values as style strings and colors as color
+//!   strings.  When combined with one or more of the above features, also
+//!   enables `#[serde(with)]`-compatible modules for (de)serializing foreign
+//!   types in the same way.
 //!
 //! Important: Lossy Conversions
 //! ============================
@@ -125,6 +131,10 @@ pub use crate::color256::Color256;
 pub use crate::rgbcolor::RgbColor;
 pub use crate::style::{ParseStyleError, Style};
 use thiserror::Error;
+
+#[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
+pub mod serde;
 
 /// Error returned when parsing a color string fails
 #[derive(Clone, Debug, Eq, Error, PartialEq)]
