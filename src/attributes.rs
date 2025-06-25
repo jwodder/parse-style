@@ -320,3 +320,22 @@ pub struct ParseAttributeError(
     /// The invalid attribute string
     pub String,
 );
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn double_ended_iteration() {
+        let attrs = Attribute::Bold | Attribute::Frame | Attribute::Reverse | Attribute::Strike;
+        let mut iter = attrs.into_iter();
+        assert_eq!(iter.next(), Some(Attribute::Bold));
+        assert_eq!(iter.next_back(), Some(Attribute::Frame));
+        assert_eq!(iter.next(), Some(Attribute::Reverse));
+        assert_eq!(iter.next_back(), Some(Attribute::Strike));
+        assert_eq!(iter.next(), None);
+        assert_eq!(iter.next_back(), None);
+        assert_eq!(iter.next(), None);
+        assert_eq!(iter.next_back(), None);
+    }
+}
