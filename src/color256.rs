@@ -702,6 +702,41 @@ static BY_NAME: Map<UniCase<&'static str>, Color256> = phf_map! {
     UniCase::ascii("gray93") => Color256(255),
 };
 
+#[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
+impl serde::Serialize for Color256 {
+    fn serialize<S: serde::ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.collect_str(self)
+    }
+}
+
+#[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
+impl<'de> serde::Deserialize<'de> for Color256 {
+    fn deserialize<D: serde::de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        struct Visitor;
+
+        impl serde::de::Visitor<'_> for Visitor {
+            type Value = Color256;
+
+            fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                f.write_str(r#"a color word or a string of the form "color(INT)""#)
+            }
+
+            fn visit_str<E>(self, input: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                input
+                    .parse::<Color256>()
+                    .map_err(|_| E::invalid_value(serde::de::Unexpected::Str(input), &self))
+            }
+        }
+
+        deserializer.deserialize_str(Visitor)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
