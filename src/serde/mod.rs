@@ -15,3 +15,7 @@
 #[cfg(feature = "anstyle")]
 #[cfg_attr(docsrs, doc(cfg(all(feature = "anstyle", feature = "serde"))))]
 pub mod anstyle;
+
+#[cfg(feature = "crossterm")]
+#[cfg_attr(docsrs, doc(cfg(all(feature = "crossterm", feature = "serde"))))]
+pub mod crossterm;
