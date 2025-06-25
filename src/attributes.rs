@@ -205,6 +205,13 @@ impl IntoIterator for AttributeSet {
     }
 }
 
+impl FromIterator<Attribute> for AttributeSet {
+    fn from_iter<I: IntoIterator<Item = Attribute>>(iter: I) -> Self {
+        iter.into_iter()
+            .fold(AttributeSet::new(), |set, attr| set | attr)
+    }
+}
+
 impl Extend<Attribute> for AttributeSet {
     fn extend<I: IntoIterator<Item = Attribute>>(&mut self, iter: I) {
         for attr in iter {
