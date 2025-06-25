@@ -4,7 +4,7 @@
 //! compatible with the Python library
 //! [`rich`](https://github.com/Textualize/rich).
 //!
-//! ```rust
+//! ```
 //! use parse_style::{Color256, Style};
 //!
 //! assert_eq!(
@@ -18,6 +18,11 @@
 //! let style = Style::from(Color256::BRIGHT_GREEN).underline();
 //! assert_eq!(style.to_string(), "underline bright_green");
 //! ```
+//!
+//! Note that this library does not provide functionality for rendering styles
+//! as ANSI escape sequences; there are plenty of crates that do that already,
+//! and `parse-style` provides conversions to some of those crates' types so
+//! you can use them for your actual styling.
 //!
 //! Style String Syntax
 //! ===================
