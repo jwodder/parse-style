@@ -297,6 +297,36 @@ impl From<AttributeSet> for anstyle::Effects {
     }
 }
 
+#[cfg(feature = "crossterm")]
+#[cfg_attr(docsrs, doc(cfg(feature = "crossterm")))]
+impl From<AttributeSet> for crossterm::style::Attributes {
+    /// Convert an `AttributeSet` to a [`crossterm::style::Attributes`] that
+    /// enables the input attributes
+    fn from(value: AttributeSet) -> crossterm::style::Attributes {
+        use crossterm::style::Attribute as CrossAttrib;
+        let mut attributes = crossterm::style::Attributes::none();
+        for attr in value {
+            let ca = match attr {
+                Attribute::Bold => CrossAttrib::Bold,
+                Attribute::Dim => CrossAttrib::Dim,
+                Attribute::Italic => CrossAttrib::Italic,
+                Attribute::Underline => CrossAttrib::Underlined,
+                Attribute::Blink => CrossAttrib::SlowBlink,
+                Attribute::Blink2 => CrossAttrib::RapidBlink,
+                Attribute::Reverse => CrossAttrib::Reverse,
+                Attribute::Conceal => CrossAttrib::Hidden,
+                Attribute::Strike => CrossAttrib::CrossedOut,
+                Attribute::Underline2 => CrossAttrib::DoubleUnderlined,
+                Attribute::Frame => CrossAttrib::Framed,
+                Attribute::Encircle => CrossAttrib::Encircled,
+                Attribute::Overline => CrossAttrib::OverLined,
+            };
+            attributes.set(ca);
+        }
+        attributes
+    }
+}
+
 impl<A: Into<AttributeSet>> std::ops::BitAnd<A> for AttributeSet {
     type Output = AttributeSet;
 
