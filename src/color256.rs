@@ -5,6 +5,8 @@ use unicase::UniCase;
 
 /// Colors in a 256-value (8-bit) palette
 ///
+/// Constants are provided for the initial 16 colors.
+///
 /// `Color256` values can be [parsed][std::str::FromStr] from case-insensitive
 /// names (see [`name()`]) or from strings of the form `"color({index})"`.
 ///
@@ -28,6 +30,23 @@ use unicase::UniCase;
 pub struct Color256(pub u8);
 
 impl Color256 {
+    pub const BLACK: Color256 = Color256(0);
+    pub const RED: Color256 = Color256(1);
+    pub const GREEN: Color256 = Color256(2);
+    pub const YELLOW: Color256 = Color256(3);
+    pub const BLUE: Color256 = Color256(4);
+    pub const MAGENTA: Color256 = Color256(5);
+    pub const CYAN: Color256 = Color256(6);
+    pub const WHITE: Color256 = Color256(7);
+    pub const BRIGHT_BLACK: Color256 = Color256(8);
+    pub const BRIGHT_RED: Color256 = Color256(9);
+    pub const BRIGHT_GREEN: Color256 = Color256(10);
+    pub const BRIGHT_YELLOW: Color256 = Color256(11);
+    pub const BRIGHT_BLUE: Color256 = Color256(12);
+    pub const BRIGHT_MAGENTA: Color256 = Color256(13);
+    pub const BRIGHT_CYAN: Color256 = Color256(14);
+    pub const BRIGHT_WHITE: Color256 = Color256(15);
+
     /// Return the lowercase name of the color as recognized by `rich`.  See
     /// [this page][table] for the list of color names.
     ///
