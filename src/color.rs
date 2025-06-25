@@ -133,6 +133,48 @@ impl From<crossterm::style::Color> for Color {
     }
 }
 
+#[cfg(feature = "ratatui")]
+#[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
+impl From<Color> for ratatui::style::Color {
+    /// Convert a `Color` to a [`ratatui::style::Color`]
+    fn from(value: Color) -> ratatui::style::Color {
+        match value {
+            Color::Default => ratatui::style::Color::Reset,
+            Color::Color256(c) => c.into(),
+            Color::Rgb(c) => c.into(),
+        }
+    }
+}
+
+#[cfg(feature = "ratatui")]
+#[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
+impl From<ratatui::style::Color> for Color {
+    /// Convert a [`ratatui::style::Color`] to a `Color`
+    fn from(value: ratatui::style::Color) -> Color {
+        match value {
+            ratatui::style::Color::Reset => Color::Default,
+            ratatui::style::Color::Black => Color256::BLACK.into(),
+            ratatui::style::Color::Red => Color256::RED.into(),
+            ratatui::style::Color::Green => Color256::GREEN.into(),
+            ratatui::style::Color::Yellow => Color256::YELLOW.into(),
+            ratatui::style::Color::Blue => Color256::BLUE.into(),
+            ratatui::style::Color::Magenta => Color256::MAGENTA.into(),
+            ratatui::style::Color::Cyan => Color256::CYAN.into(),
+            ratatui::style::Color::Gray => Color256::WHITE.into(),
+            ratatui::style::Color::DarkGray => Color256::BRIGHT_BLACK.into(),
+            ratatui::style::Color::LightRed => Color256::BRIGHT_RED.into(),
+            ratatui::style::Color::LightGreen => Color256::BRIGHT_GREEN.into(),
+            ratatui::style::Color::LightYellow => Color256::BRIGHT_YELLOW.into(),
+            ratatui::style::Color::LightBlue => Color256::BRIGHT_BLUE.into(),
+            ratatui::style::Color::LightMagenta => Color256::BRIGHT_MAGENTA.into(),
+            ratatui::style::Color::LightCyan => Color256::BRIGHT_CYAN.into(),
+            ratatui::style::Color::White => Color256::BRIGHT_WHITE.into(),
+            ratatui::style::Color::Rgb(r, g, b) => RgbColor(r, g, b).into(),
+            ratatui::style::Color::Indexed(index) => Color256(index).into(),
+        }
+    }
+}
+
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {

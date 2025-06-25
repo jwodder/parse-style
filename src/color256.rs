@@ -34,21 +34,52 @@ use unicase::UniCase;
 pub struct Color256(pub u8);
 
 impl Color256 {
+    /// Color 0
     pub const BLACK: Color256 = Color256(0);
+
+    /// Color 1, also known as "dark red"
     pub const RED: Color256 = Color256(1);
+
+    /// Color 2, also known as "dark green"
     pub const GREEN: Color256 = Color256(2);
+
+    /// Color 3, also known as "dark yellow"
     pub const YELLOW: Color256 = Color256(3);
+
+    /// Color 4, also known as "dark blue"
     pub const BLUE: Color256 = Color256(4);
+
+    /// Color 5, also known as "dark magenta"
     pub const MAGENTA: Color256 = Color256(5);
+
+    /// Color 6, also known as "dark cyan"
     pub const CYAN: Color256 = Color256(6);
+
+    /// Color 7, also known as "grey"
     pub const WHITE: Color256 = Color256(7);
+
+    /// Color 8, also known as "dark grey" or "grey"
     pub const BRIGHT_BLACK: Color256 = Color256(8);
+
+    /// Color 9
     pub const BRIGHT_RED: Color256 = Color256(9);
+
+    /// Color 10
     pub const BRIGHT_GREEN: Color256 = Color256(10);
+
+    /// Color 11
     pub const BRIGHT_YELLOW: Color256 = Color256(11);
+
+    /// Color 12
     pub const BRIGHT_BLUE: Color256 = Color256(12);
+
+    /// Color 13
     pub const BRIGHT_MAGENTA: Color256 = Color256(13);
+
+    /// Color 14
     pub const BRIGHT_CYAN: Color256 = Color256(14);
+
+    /// Color 15, also known as "white"
     pub const BRIGHT_WHITE: Color256 = Color256(15);
 
     /// Return the lowercase name of the color as recognized by `rich`.  See
@@ -395,6 +426,15 @@ impl From<Color256> for crossterm::style::Color {
     /// Convert a `Color256` to a [`crossterm::style::Color`]
     fn from(value: Color256) -> crossterm::style::Color {
         crossterm::style::Color::AnsiValue(value.0)
+    }
+}
+
+#[cfg(feature = "ratatui")]
+#[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
+impl From<Color256> for ratatui::style::Color {
+    /// Convert a `Color256` to a [`ratatui::style::Color`]
+    fn from(value: Color256) -> ratatui::style::Color {
+        ratatui::style::Color::Indexed(value.0)
     }
 }
 

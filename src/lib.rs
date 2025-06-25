@@ -99,6 +99,9 @@
 //! - `crossterm` — Enable conversions between `parse-style` types and types
 //!   from the [`crossterm`](https://crates.io/crates/crossterm) crate
 //!
+//! - `ratatui` — Enable conversions between `parse-style` types and types from
+//!   the [`ratatui`](https://crates.io/crates/ratatui) crate
+//!
 //! Important: Lossy Conversions
 //! ============================
 //!

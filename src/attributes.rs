@@ -222,6 +222,43 @@ impl Extend<Attribute> for AttributeSet {
 
 #[cfg(feature = "anstyle")]
 #[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
+impl From<AttributeSet> for anstyle::Effects {
+    /// Convert an `AttributeSet` to an [`anstyle::Effects`]
+    ///
+    /// # Data Loss
+    ///
+    /// The following attributes are discarded during conversion, as they have
+    /// no `anstyle::Effects` equivalents:
+    ///
+    /// - [`Attribute::Blink2`]
+    /// - [`Attribute::Frame`]
+    /// - [`Attribute::Encircle`]
+    /// - [`Attribute::Overline`]
+    fn from(value: AttributeSet) -> anstyle::Effects {
+        let mut efs = anstyle::Effects::new();
+        for attr in value {
+            match attr {
+                Attribute::Bold => efs |= anstyle::Effects::BOLD,
+                Attribute::Dim => efs |= anstyle::Effects::DIMMED,
+                Attribute::Italic => efs |= anstyle::Effects::ITALIC,
+                Attribute::Underline => efs |= anstyle::Effects::UNDERLINE,
+                Attribute::Blink => efs |= anstyle::Effects::BLINK,
+                Attribute::Blink2 => (),
+                Attribute::Reverse => efs |= anstyle::Effects::INVERT,
+                Attribute::Conceal => efs |= anstyle::Effects::HIDDEN,
+                Attribute::Strike => efs |= anstyle::Effects::STRIKETHROUGH,
+                Attribute::Underline2 => efs |= anstyle::Effects::DOUBLE_UNDERLINE,
+                Attribute::Frame => (),
+                Attribute::Encircle => (),
+                Attribute::Overline => (),
+            }
+        }
+        efs
+    }
+}
+
+#[cfg(feature = "anstyle")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
 impl From<anstyle::Effects> for AttributeSet {
     /// Convert an [`anstyle::Effects`] to an `AttributeSet`
     ///
@@ -260,43 +297,6 @@ impl From<anstyle::Effects> for AttributeSet {
     }
 }
 
-#[cfg(feature = "anstyle")]
-#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
-impl From<AttributeSet> for anstyle::Effects {
-    /// Convert an `AttributeSet` to an [`anstyle::Effects`]
-    ///
-    /// # Data Loss
-    ///
-    /// The following attributes are discarded during conversion, as they have
-    /// no `anstyle::Effects` equivalents:
-    ///
-    /// - [`Attribute::Blink2`]
-    /// - [`Attribute::Frame`]
-    /// - [`Attribute::Encircle`]
-    /// - [`Attribute::Overline`]
-    fn from(value: AttributeSet) -> anstyle::Effects {
-        let mut efs = anstyle::Effects::new();
-        for attr in value {
-            match attr {
-                Attribute::Bold => efs |= anstyle::Effects::BOLD,
-                Attribute::Dim => efs |= anstyle::Effects::DIMMED,
-                Attribute::Italic => efs |= anstyle::Effects::ITALIC,
-                Attribute::Underline => efs |= anstyle::Effects::UNDERLINE,
-                Attribute::Blink => efs |= anstyle::Effects::BLINK,
-                Attribute::Blink2 => (),
-                Attribute::Reverse => efs |= anstyle::Effects::INVERT,
-                Attribute::Conceal => efs |= anstyle::Effects::HIDDEN,
-                Attribute::Strike => efs |= anstyle::Effects::STRIKETHROUGH,
-                Attribute::Underline2 => efs |= anstyle::Effects::DOUBLE_UNDERLINE,
-                Attribute::Frame => (),
-                Attribute::Encircle => (),
-                Attribute::Overline => (),
-            }
-        }
-        efs
-    }
-}
-
 #[cfg(feature = "crossterm")]
 #[cfg_attr(docsrs, doc(cfg(feature = "crossterm")))]
 impl From<AttributeSet> for crossterm::style::Attributes {
@@ -324,6 +324,70 @@ impl From<AttributeSet> for crossterm::style::Attributes {
             attributes.set(ca);
         }
         attributes
+    }
+}
+
+#[cfg(feature = "ratatui")]
+#[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
+impl From<AttributeSet> for ratatui::style::Modifier {
+    /// Convert an `AttributeSet` to an [`ratatui::style::Modifier`]
+    ///
+    /// # Data Loss
+    ///
+    /// The following attributes are discarded during conversion, as they have
+    /// no `ratatui::style::Modifier` equivalents:
+    ///
+    /// - [`Attribute::Underline2`]
+    /// - [`Attribute::Frame`]
+    /// - [`Attribute::Encircle`]
+    /// - [`Attribute::Overline`]
+    fn from(value: AttributeSet) -> ratatui::style::Modifier {
+        let mut mods = ratatui::style::Modifier::empty();
+        for attr in value {
+            match attr {
+                Attribute::Bold => mods |= ratatui::style::Modifier::BOLD,
+                Attribute::Dim => mods |= ratatui::style::Modifier::DIM,
+                Attribute::Italic => mods |= ratatui::style::Modifier::ITALIC,
+                Attribute::Underline => mods |= ratatui::style::Modifier::UNDERLINED,
+                Attribute::Blink => mods |= ratatui::style::Modifier::SLOW_BLINK,
+                Attribute::Blink2 => mods |= ratatui::style::Modifier::RAPID_BLINK,
+                Attribute::Reverse => mods |= ratatui::style::Modifier::REVERSED,
+                Attribute::Conceal => mods |= ratatui::style::Modifier::HIDDEN,
+                Attribute::Strike => mods |= ratatui::style::Modifier::CROSSED_OUT,
+                Attribute::Underline2 => (),
+                Attribute::Frame => (),
+                Attribute::Encircle => (),
+                Attribute::Overline => (),
+            }
+        }
+        mods
+    }
+}
+
+#[cfg(feature = "ratatui")]
+#[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
+impl From<ratatui::style::Modifier> for AttributeSet {
+    /// Convert a [`ratatui::style::Modifier`] to an `AttributeSet`
+    fn from(value: ratatui::style::Modifier) -> AttributeSet {
+        let mut set = AttributeSet::new();
+        for m in value.iter() {
+            match m {
+                ratatui::style::Modifier::BOLD => set |= Attribute::Bold,
+                ratatui::style::Modifier::DIM => set |= Attribute::Dim,
+                ratatui::style::Modifier::ITALIC => set |= Attribute::Italic,
+                ratatui::style::Modifier::UNDERLINED => set |= Attribute::Underline,
+                ratatui::style::Modifier::SLOW_BLINK => set |= Attribute::Blink,
+                ratatui::style::Modifier::RAPID_BLINK => set |= Attribute::Blink,
+                ratatui::style::Modifier::REVERSED => set |= Attribute::Reverse,
+                ratatui::style::Modifier::HIDDEN => set |= Attribute::Conceal,
+                ratatui::style::Modifier::CROSSED_OUT => set |= Attribute::Strike,
+                // Because a `Modifier` can be either a single effect or
+                // multiple, we need a catch-all arm here, even though the
+                // iterator will only yield single modifiers.
+                _ => (),
+            }
+        }
+        set
     }
 }
 

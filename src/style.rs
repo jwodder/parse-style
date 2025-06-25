@@ -392,28 +392,6 @@ impl From<crossterm::style::Attributes> for Style {
 
 #[cfg(feature = "crossterm")]
 #[cfg_attr(docsrs, doc(cfg(feature = "crossterm")))]
-impl From<crossterm::style::ContentStyle> for Style {
-    /// Convert a [`crossterm::style::ContentStyle`] to a `Style`
-    ///
-    /// # Data Loss
-    ///
-    /// Underline color is discarded during conversion.
-    ///
-    /// The following attributes are discarded during conversion:
-    ///
-    /// - [`crossterm::style::Attribute::Undercurled`]
-    /// - [`crossterm::style::Attribute::Underdotted`]
-    /// - [`crossterm::style::Attribute::Underdashed`]
-    /// - [`crossterm::style::Attribute::Fraktur`]
-    fn from(value: crossterm::style::ContentStyle) -> Style {
-        Style::from(value.attributes)
-            .foreground(value.foreground_color.map(Color::from))
-            .background(value.background_color.map(Color::from))
-    }
-}
-
-#[cfg(feature = "crossterm")]
-#[cfg_attr(docsrs, doc(cfg(feature = "crossterm")))]
 impl From<Style> for crossterm::style::ContentStyle {
     /// Convert a `Style` to a [`crossterm::style::ContentStyle`]
     ///
@@ -464,6 +442,79 @@ impl From<Style> for crossterm::style::ContentStyle {
             background_color,
             attributes,
             underline_color: None,
+        }
+    }
+}
+
+#[cfg(feature = "crossterm")]
+#[cfg_attr(docsrs, doc(cfg(feature = "crossterm")))]
+impl From<crossterm::style::ContentStyle> for Style {
+    /// Convert a [`crossterm::style::ContentStyle`] to a `Style`
+    ///
+    /// # Data Loss
+    ///
+    /// Underline color is discarded during conversion.
+    ///
+    /// The following attributes are discarded during conversion:
+    ///
+    /// - [`crossterm::style::Attribute::Undercurled`]
+    /// - [`crossterm::style::Attribute::Underdotted`]
+    /// - [`crossterm::style::Attribute::Underdashed`]
+    /// - [`crossterm::style::Attribute::Fraktur`]
+    fn from(value: crossterm::style::ContentStyle) -> Style {
+        Style::from(value.attributes)
+            .foreground(value.foreground_color.map(Color::from))
+            .background(value.background_color.map(Color::from))
+    }
+}
+
+#[cfg(feature = "ratatui")]
+#[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
+impl From<Style> for ratatui::style::Style {
+    /// Convert a `Style` to a [`ratatui::style::Style`]
+    ///
+    /// # Data Loss
+    ///
+    /// The following attributes are discarded during conversion:
+    ///
+    /// - [`Attribute::Underline2`]
+    /// - [`Attribute::Frame`]
+    /// - [`Attribute::Encircle`]
+    /// - [`Attribute::Overline`]
+    fn from(value: Style) -> ratatui::style::Style {
+        // Don't try to construct a ratatui Style using struct notation, as the
+        // `underline_color` field is feature-based.
+        let mut style = ratatui::style::Style::new();
+        if let Some(fg) = value.foreground.map(ratatui::style::Color::from) {
+            style = style.fg(fg);
+        }
+        if let Some(bg) = value.background.map(ratatui::style::Color::from) {
+            style = style.bg(bg);
+        }
+        style = style.add_modifier(value.enabled_attributes.into());
+        style = style.remove_modifier(value.disabled_attributes.into());
+        style
+    }
+}
+
+#[cfg(feature = "ratatui")]
+#[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
+impl From<ratatui::style::Style> for Style {
+    /// Convert a [`ratatui::style::Style`] to a `Style`
+    ///
+    /// # Data Loss
+    ///
+    /// Underline color is discarded during conversion.
+    fn from(value: ratatui::style::Style) -> Style {
+        let foreground = value.fg.map(Color::from);
+        let background = value.bg.map(Color::from);
+        let enabled_attributes = AttributeSet::from(value.add_modifier);
+        let disabled_attributes = AttributeSet::from(value.sub_modifier);
+        Style {
+            foreground,
+            background,
+            enabled_attributes,
+            disabled_attributes,
         }
     }
 }
