@@ -1,5 +1,7 @@
 mod color256;
-pub use color256::Color256;
+mod rgbcolor;
+pub use crate::color256::Color256;
+pub use crate::rgbcolor::RgbColor;
 use thiserror::Error;
 
 /// Error returned when parsing a color string fails

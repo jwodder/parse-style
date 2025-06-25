@@ -6,12 +6,24 @@ use unicase::UniCase;
 /// Colors in a 256-value (8-bit) palette
 ///
 /// `Color256` values can be [parsed][std::str::FromStr] from case-insensitive
-/// names (see [`name()`]) or from strings of the form `"color({index})"`
-/// (e.g., `"color(2)"` is the same as `"green"` and `"GREEN"`).
+/// names (see [`name()`]) or from strings of the form `"color({index})"`.
 ///
 /// `Color256` values are [displayed][std::fmt::Display] as their lowercase
 /// names or, for colors without names, as strings of the form
 /// `"color({index})"`.
+///
+/// # Examples
+///
+/// ```
+/// use parse_style::Color256;
+///
+/// assert_eq!("color(2)".parse::<Color256>().unwrap(), Color256(2));
+/// assert_eq!("green".parse::<Color256>().unwrap(), Color256(2));
+/// assert_eq!("GREEN".parse::<Color256>().unwrap(), Color256(2));
+///
+/// assert_eq!(Color256(2).to_string(), "green");
+/// assert_eq!(Color256(42).to_string(), "color(42)");
+/// ```
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Color256(pub u8);
 
@@ -315,7 +327,7 @@ impl std::str::FromStr for Color256 {
             Ok(color)
         } else if let Some(index) = s
             .strip_prefix("color(")
-            .and_then(|s| s.strip_suffix(")"))
+            .and_then(|s| s.strip_suffix(')'))
             .and_then(|s| s.parse::<u8>().ok())
         {
             Ok(Color256(index))
