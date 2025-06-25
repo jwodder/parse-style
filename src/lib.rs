@@ -1,3 +1,4 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
 //! `parse-style` is a [Rust](https://www.rust-lang.org) library for parsing &
 //! displaying strings describing styles for terminal text using a syntax
 //! compatible with the Python library
@@ -109,3 +110,9 @@ pub struct ParseColorError(
     /// The invalid color string
     pub String,
 );
+
+/// Error returned when conversion between a `parse_style` type and a foreign
+/// type fails
+#[derive(Clone, Copy, Debug, Eq, Error, PartialEq)]
+#[error("failed to convert between parse_style type and foreign type")]
+pub struct ConversionError;

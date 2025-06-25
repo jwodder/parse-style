@@ -362,6 +362,33 @@ impl From<Color256> for u8 {
     }
 }
 
+#[cfg(feature = "anstyle")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
+impl From<anstyle::AnsiColor> for Color256 {
+    /// Convert an [`anstyle::AnsiColor`] to a `Color256`
+    fn from(value: anstyle::AnsiColor) -> Color256 {
+        Color256(value as u8)
+    }
+}
+
+#[cfg(feature = "anstyle")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
+impl From<Color256> for anstyle::Ansi256Color {
+    /// Convert a `Color256` to an [`anstyle::Ansi256Color`]
+    fn from(value: Color256) -> anstyle::Ansi256Color {
+        anstyle::Ansi256Color(value.0)
+    }
+}
+
+#[cfg(feature = "anstyle")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
+impl From<anstyle::Ansi256Color> for Color256 {
+    /// Convert an [`anstyle::Ansi256Color`] to a `Color256`
+    fn from(value: anstyle::Ansi256Color) -> Color256 {
+        Color256(value.0)
+    }
+}
+
 impl fmt::Display for Color256 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.name() {

@@ -81,6 +81,24 @@ impl From<RgbColor> for (u8, u8, u8) {
     }
 }
 
+#[cfg(feature = "anstyle")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
+impl From<RgbColor> for anstyle::RgbColor {
+    /// Convert an `RgbColor` to an [`anstyle::RgbColor`]
+    fn from(value: RgbColor) -> anstyle::RgbColor {
+        anstyle::RgbColor(value.0, value.1, value.2)
+    }
+}
+
+#[cfg(feature = "anstyle")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
+impl From<anstyle::RgbColor> for RgbColor {
+    /// Convert an [`anstyle::RgbColor`] to a `RgbColor`
+    fn from(value: anstyle::RgbColor) -> RgbColor {
+        RgbColor(value.0, value.1, value.2)
+    }
+}
+
 impl fmt::Display for RgbColor {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "#{:02x}{:02x}{:02x}", self.0, self.1, self.2)
