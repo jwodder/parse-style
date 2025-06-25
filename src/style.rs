@@ -7,22 +7,19 @@ use thiserror::Error;
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Style {
     /// The foreground color
-    pub foreground: Option<Color>,
+    foreground: Option<Color>,
 
     /// The background color
-    pub background: Option<Color>,
+    background: Option<Color>,
 
     /// Active/enabled attributes
-    pub enabled_attributes: AttributeSet,
+    enabled_attributes: AttributeSet,
 
     /// Explicitly disabled attributes
     ///
-    /// Note that, while the individual `Style` methods will keep things
-    /// "normalized," manual field manipulation can produce styles in which the
-    /// same attribute is in both `enabled_attributes` and
-    /// `disabled_attributes`; methods like [`is_enabled()`][Style::is_enabled]
-    /// will treat such attributes as neither enabled nor disabled.
-    pub disabled_attributes: AttributeSet,
+    /// The individual `Style` methods must ensure that no attribute is ever in
+    /// both `enabled_attributes` and `disabled_attributes` at once.
+    disabled_attributes: AttributeSet,
 }
 
 impl Style {
@@ -70,12 +67,12 @@ impl Style {
             && self.disabled_attributes.is_empty()
     }
 
-    /// `true` if `attr` is enabled and not disabled
+    /// `true` if `attr` is enabled
     pub fn is_enabled(self, attr: Attribute) -> bool {
         self.enabled_attributes.contains(attr) && !self.disabled_attributes.contains(attr)
     }
 
-    /// `true` if `attr` is disabled and not enabled
+    /// `true` if `attr` is explicitly disabled
     pub fn is_disabled(self, attr: Attribute) -> bool {
         self.disabled_attributes.contains(attr) && !self.enabled_attributes.contains(attr)
     }
