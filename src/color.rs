@@ -1,6 +1,7 @@
 use super::ParseColorError;
 use crate::color256::Color256;
 use crate::rgbcolor::RgbColor;
+use crate::style::Style;
 use std::fmt;
 
 /// An enum of the different color types
@@ -11,6 +12,26 @@ pub enum Color {
     Default,
     Color256(Color256),
     Rgb(RgbColor),
+}
+
+impl Color {
+    /// Return a new [`Style`] that uses this color as the foreground color
+    pub fn as_foreground(self) -> Style {
+        Style::new().foreground(Some(self))
+    }
+
+    /// Return a new [`Style`] that uses this color as the background color
+    pub fn as_background(self) -> Style {
+        Style::new().background(Some(self))
+    }
+
+    /// Return a new [`Style`] that uses this color as the foreground color and
+    /// `bg` as the background color
+    pub fn on<C: Into<Color>>(self, bg: C) -> Style {
+        Style::new()
+            .foreground(Some(self))
+            .background(Some(bg.into()))
+    }
 }
 
 impl From<Color256> for Color {

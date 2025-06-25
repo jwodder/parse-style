@@ -44,12 +44,14 @@ impl Style {
     /// Set the enabled attributes
     pub fn enabled_attributes<A: Into<AttributeSet>>(mut self, attrs: A) -> Style {
         self.enabled_attributes = attrs.into();
+        self.disabled_attributes -= self.enabled_attributes;
         self
     }
 
     /// Set the disabled attributes
     pub fn disabled_attributes<A: Into<AttributeSet>>(mut self, attrs: A) -> Style {
         self.disabled_attributes = attrs.into();
+        self.enabled_attributes -= self.disabled_attributes;
         self
     }
 
@@ -187,68 +189,89 @@ impl Style {
     }
 
     /// Disable bold text
-    pub fn no_bold(self) -> Style {
+    pub fn not_bold(self) -> Style {
         self.disable_attribute(Attribute::Bold)
     }
 
     /// Disable dim text
-    pub fn no_dim(self) -> Style {
+    pub fn not_dim(self) -> Style {
         self.disable_attribute(Attribute::Dim)
     }
 
     /// Disable italic text
-    pub fn no_italic(self) -> Style {
+    pub fn not_italic(self) -> Style {
         self.disable_attribute(Attribute::Italic)
     }
 
     /// Disable underlining
-    pub fn no_underline(self) -> Style {
+    pub fn not_underline(self) -> Style {
         self.disable_attribute(Attribute::Underline)
     }
 
     /// Disable blinking
-    pub fn no_blink(self) -> Style {
+    pub fn not_blink(self) -> Style {
         self.disable_attribute(Attribute::Blink)
     }
 
     /// Disable fast blinking
-    pub fn no_blink2(self) -> Style {
+    pub fn not_blink2(self) -> Style {
         self.disable_attribute(Attribute::Blink2)
     }
 
     /// Disable reverse video
-    pub fn no_reverse(self) -> Style {
+    pub fn not_reverse(self) -> Style {
         self.disable_attribute(Attribute::Reverse)
     }
 
     /// Disable concealed/hidden text
-    pub fn no_conceal(self) -> Style {
+    pub fn not_conceal(self) -> Style {
         self.disable_attribute(Attribute::Conceal)
     }
 
     /// Disable strikethrough
-    pub fn no_strike(self) -> Style {
+    pub fn not_strike(self) -> Style {
         self.disable_attribute(Attribute::Strike)
     }
 
     /// Disable double-underlining
-    pub fn no_underline2(self) -> Style {
+    pub fn not_underline2(self) -> Style {
         self.disable_attribute(Attribute::Underline2)
     }
 
     /// Disable framed text
-    pub fn no_frame(self) -> Style {
+    pub fn not_frame(self) -> Style {
         self.disable_attribute(Attribute::Frame)
     }
 
     /// Disable encircled text
-    pub fn no_encircle(self) -> Style {
+    pub fn not_encircle(self) -> Style {
         self.disable_attribute(Attribute::Encircle)
     }
 
     /// Disable overlining
-    pub fn no_overline(self) -> Style {
+    pub fn not_overline(self) -> Style {
         self.disable_attribute(Attribute::Overline)
+    }
+}
+
+impl<C: Into<Color>> From<C> for Style {
+    /// Construct a new `Style` using the given color as the foreground color
+    fn from(value: C) -> Style {
+        Style::new().foreground(Some(value.into()))
+    }
+}
+
+impl From<Attribute> for Style {
+    /// Construct a new `Style` that enables the given attribute
+    fn from(value: Attribute) -> Style {
+        Style::new().enable_attribute(value)
+    }
+}
+
+impl From<AttributeSet> for Style {
+    /// Construct a new `Style` that enables the given attributes
+    fn from(value: AttributeSet) -> Style {
+        Style::new().enabled_attributes(value)
     }
 }
 
@@ -306,10 +329,9 @@ impl std::str::FromStr for Style {
 
     fn from_str(s: &str) -> Result<Style, ParseStyleError> {
         let mut style = Style::new();
-        if s.trim().eq_ignore_ascii_case("none") {
+        if s.is_empty() || s.trim().eq_ignore_ascii_case("none") {
             return Ok(style);
         }
-
         let mut words = s.split_whitespace();
         while let Some(token) = words.next() {
             if token.eq_ignore_ascii_case("on") {
@@ -321,11 +343,11 @@ impl std::str::FromStr for Style {
                 let Some(attr) = words.next().and_then(|s| s.parse::<Attribute>().ok()) else {
                     return Err(ParseStyleError::MissingAttribute);
                 };
-                style.disable_attribute(attr);
+                style = style.disable_attribute(attr);
             } else if let Ok(color) = token.parse::<Color>() {
                 style.foreground = Some(color);
             } else if let Ok(attr) = token.parse::<Attribute>() {
-                style.enable_attribute(attr);
+                style = style.enable_attribute(attr);
             } else {
                 return Err(ParseStyleError::Token(token.to_owned()));
             }
@@ -342,4 +364,270 @@ pub enum ParseStyleError {
     MissingBackground,
     #[error(r#""not" not followed by valid attribute name"#)]
     MissingAttribute,
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_new_is_default() {
+        assert_eq!(Style::new(), Style::default());
+    }
+
+    mod display {
+        use super::*;
+        use crate::Color256;
+
+        #[test]
+        fn none() {
+            assert_eq!(Style::new().to_string(), "none");
+        }
+
+        #[test]
+        fn fg_color() {
+            let style = Style::from(Color256::RED);
+            assert_eq!(style.to_string(), "red");
+        }
+
+        #[test]
+        fn bg_color() {
+            let style = Color256::RED.as_background();
+            assert_eq!(style.to_string(), "on red");
+        }
+
+        #[test]
+        fn fg_on_bg() {
+            let style = Color256::BLUE.on(Color256::RED);
+            assert_eq!(style.to_string(), "blue on red");
+        }
+
+        #[test]
+        fn attr() {
+            let style = Style::from(Attribute::Bold);
+            assert_eq!(style.to_string(), "bold");
+        }
+
+        #[test]
+        fn multiple_attrs() {
+            let style = Style::from(Attribute::Bold | Attribute::Reverse);
+            assert_eq!(style.to_string(), "bold reverse");
+        }
+
+        #[test]
+        fn not_attr() {
+            let style = Style::new().disable_attribute(Attribute::Bold);
+            assert_eq!(style.to_string(), "not bold");
+        }
+
+        #[test]
+        fn multiple_not_attrs() {
+            let style = Style::new()
+                .disable_attribute(Attribute::Bold)
+                .disable_attribute(Attribute::Reverse);
+            assert_eq!(style.to_string(), "not bold not reverse");
+        }
+
+        #[test]
+        fn attr_and_not_attr() {
+            let style = Style::from(Attribute::Bold).disable_attribute(Attribute::Blink);
+            assert_eq!(style.to_string(), "bold not blink");
+        }
+
+        #[test]
+        fn gamut() {
+            let style = Color256::YELLOW
+                .on(Color::Default)
+                .enable_attribute(Attribute::Italic)
+                .disable_attribute(Attribute::Bold);
+            assert_eq!(style.to_string(), "not bold italic yellow on default");
+        }
+
+        #[test]
+        fn all_attrs() {
+            let style = Style::from(AttributeSet::full());
+            assert_eq!(style.to_string(), "bold dim italic underline blink blink2 reverse conceal strike underline2 frame encircle overline");
+        }
+
+        #[test]
+        fn not_all_attrs() {
+            let style = Style::new().disabled_attributes(AttributeSet::full());
+            assert_eq!(style.to_string(), "not bold not dim not italic not underline not blink not blink2 not reverse not conceal not strike not underline2 not frame not encircle not overline");
+        }
+    }
+
+    mod parse {
+        use super::*;
+        use crate::Color256;
+        use rstest::rstest;
+
+        #[test]
+        fn none() {
+            assert_eq!("".parse::<Style>().unwrap(), Style::new());
+            assert_eq!("none".parse::<Style>().unwrap(), Style::new());
+            assert_eq!("NONE".parse::<Style>().unwrap(), Style::new());
+            assert_eq!(" none ".parse::<Style>().unwrap(), Style::new());
+        }
+
+        #[test]
+        fn fg() {
+            assert_eq!(
+                "green".parse::<Style>().unwrap(),
+                Style::from(Color256::GREEN)
+            );
+        }
+
+        #[test]
+        fn bg() {
+            assert_eq!(
+                "on green".parse::<Style>().unwrap(),
+                Color256::GREEN.as_background()
+            );
+            assert_eq!(
+                " on  green ".parse::<Style>().unwrap(),
+                Color256::GREEN.as_background()
+            );
+            assert_eq!(
+                " ON  GREEN ".parse::<Style>().unwrap(),
+                Color256::GREEN.as_background()
+            );
+        }
+
+        #[test]
+        fn fg_on_bg() {
+            assert_eq!(
+                "blue on white".parse::<Style>().unwrap(),
+                Color256::BLUE.on(Color256::WHITE)
+            );
+            assert_eq!(
+                "on white blue".parse::<Style>().unwrap(),
+                Color256::BLUE.on(Color256::WHITE)
+            );
+        }
+
+        #[test]
+        fn attr() {
+            assert_eq!(
+                "bold".parse::<Style>().unwrap(),
+                Style::from(Attribute::Bold)
+            );
+        }
+
+        #[test]
+        fn multiple_attr() {
+            assert_eq!(
+                "bold underline".parse::<Style>().unwrap(),
+                Style::from(Attribute::Bold | Attribute::Underline)
+            );
+            assert_eq!(
+                "underline bold".parse::<Style>().unwrap(),
+                Style::from(Attribute::Bold | Attribute::Underline)
+            );
+        }
+
+        #[test]
+        fn not_attr() {
+            assert_eq!(
+                "not bold".parse::<Style>().unwrap(),
+                Style::new().disable_attribute(Attribute::Bold)
+            );
+            assert_eq!(
+                " NOT  BOLD ".parse::<Style>().unwrap(),
+                Style::new().disable_attribute(Attribute::Bold)
+            );
+        }
+
+        #[test]
+        fn multiple_not_attrs() {
+            assert_eq!(
+                "not bold not s".parse::<Style>().unwrap(),
+                Style::new().disabled_attributes(Attribute::Bold | Attribute::Strike)
+            );
+            assert_eq!(
+                "not s not bold".parse::<Style>().unwrap(),
+                Style::new().disabled_attributes(Attribute::Bold | Attribute::Strike)
+            );
+        }
+
+        #[test]
+        fn attr_and_not_attr() {
+            assert_eq!(
+                "dim not blink2".parse::<Style>().unwrap(),
+                Style::new()
+                    .enable_attribute(Attribute::Dim)
+                    .disable_attribute(Attribute::Blink2)
+            );
+            assert_eq!(
+                "not blink2 dim".parse::<Style>().unwrap(),
+                Style::new()
+                    .enable_attribute(Attribute::Dim)
+                    .disable_attribute(Attribute::Blink2)
+            );
+        }
+
+        #[test]
+        fn gamut() {
+            for s in [
+                "bold not underline red on blue",
+                "not underline red on blue bold",
+                "on blue red not underline bold",
+            ] {
+                assert_eq!(
+                    s.parse::<Style>().unwrap(),
+                    Color256::RED.on(Color256::BLUE).bold().not_underline()
+                );
+            }
+        }
+
+        #[test]
+        fn multiple_fg() {
+            assert_eq!(
+                "red blue".parse::<Style>().unwrap(),
+                Style::from(Color256::BLUE)
+            );
+        }
+
+        #[test]
+        fn multiple_bg() {
+            assert_eq!(
+                "on red on blue".parse::<Style>().unwrap(),
+                Color256::BLUE.as_background()
+            );
+        }
+
+        #[test]
+        fn attr_on_and_off() {
+            assert_eq!(
+                "bold magenta not bold".parse::<Style>().unwrap(),
+                Style::from(Color256::MAGENTA).not_bold()
+            );
+        }
+
+        #[test]
+        fn attr_off_and_on() {
+            assert_eq!(
+                "not bold magenta bold".parse::<Style>().unwrap(),
+                Style::from(Color256::MAGENTA).bold()
+            );
+        }
+
+        #[rstest]
+        #[case("on bold")]
+        #[case("on foo")]
+        #[case("blue on")]
+        #[case("on")]
+        #[case("not blue")]
+        #[case("not foo")]
+        #[case("bold not")]
+        #[case("not not bold italic")]
+        #[case("not")]
+        #[case("none red")]
+        #[case("red none")]
+        #[case("foo")]
+        #[case("rgb(1, 2, 3)")]
+        #[case("bright blue")]
+        fn err(#[case] s: &str) {
+            assert!(s.parse::<Style>().is_err());
+        }
+    }
 }

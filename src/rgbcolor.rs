@@ -1,4 +1,6 @@
 use super::ParseColorError;
+use crate::color::Color;
+use crate::style::Style;
 use std::fmt;
 
 /// A 24-bit color composed of red, green, and blue components
@@ -45,6 +47,24 @@ impl RgbColor {
     /// Return the blue component
     pub fn blue(self) -> u8 {
         self.2
+    }
+
+    /// Return a new [`Style`] that uses this color as the foreground color
+    pub fn as_foreground(self) -> Style {
+        Style::new().foreground(Some(self.into()))
+    }
+
+    /// Return a new [`Style`] that uses this color as the background color
+    pub fn as_background(self) -> Style {
+        Style::new().background(Some(self.into()))
+    }
+
+    /// Return a new [`Style`] that uses this color as the foreground color and
+    /// `bg` as the background color
+    pub fn on<C: Into<Color>>(self, bg: C) -> Style {
+        Style::new()
+            .foreground(Some(self.into()))
+            .background(Some(bg.into()))
     }
 }
 
