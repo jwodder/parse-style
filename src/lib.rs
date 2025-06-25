@@ -126,6 +126,10 @@ pub use crate::rgbcolor::RgbColor;
 pub use crate::style::{ParseStyleError, Style};
 use thiserror::Error;
 
+#[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
+pub mod serde;
+
 /// Error returned when parsing a color string fails
 #[derive(Clone, Debug, Eq, Error, PartialEq)]
 #[error("invalid color string: {0:?}")]
