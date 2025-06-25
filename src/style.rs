@@ -288,16 +288,16 @@ impl From<Style> for anstyle::Style {
     ///
     /// # Data Loss
     ///
-    /// - If the `Style`'s foreground or background color is
-    ///   [`Color::Default`], it will be converted to `None`.
+    /// If the `Style`'s foreground or background color is [`Color::Default`],
+    /// it will be converted to `None`.
     ///
-    /// - The following attributes will be discarded during conversion:
+    /// The following attributes will be discarded during conversion:
     ///     - [`Attribute::Blink2`]
     ///     - [`Attribute::Frame`]
     ///     - [`Attribute::Encircle`]
     ///     - [`Attribute::Overline`]
     ///
-    /// - Disabled attributes are discarded during conversion.
+    /// Disabled attributes are discarded during conversion.
     fn from(value: Style) -> anstyle::Style {
         anstyle::Style::new()
             .fg_color(

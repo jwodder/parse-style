@@ -59,9 +59,9 @@
 //!
 //!     - a color name (case insensitive) from [this table][colors]
 //!
-//!     - a word of the form `color({index})` (case insensitive) where `{index}` is
-//!       a decimal integer from 0 through 255, denoting the 8-bit color with the
-//!       given index
+//!     - a word of the form `color({index})` (case insensitive) where
+//!       `{index}` is a decimal integer from 0 through 255, denoting the 8-bit
+//!       color with the given index
 //!
 //!     - a word of the form `#xxxxxx`, where the `x`'s are hexadecimal digits,
 //!       denoting an RGB color
@@ -87,6 +87,23 @@
 //! - Minor technical difference: `parse-style` uses Rust's definition of
 //!   whitespace for splitting strings into tokens, while `rich` uses Python's
 //!   space definition, which includes a few extra control characters.
+//!
+//! Features
+//! ========
+//!
+//! The `parse-style` crate has the following optional features:
+//!
+//! - `anstyle` — Enable conversions between `parse-style` types and types from
+//!   the [`anstyle`](https://crates.io/crates/anstyle) crate
+//!
+//! Important: Lossy Conversions
+//! ============================
+//!
+//! Different terminal text-styling crates support different styling features,
+//! making perfect interoperability impossible.  As a result, some conversions
+//! between `parse-style` types and foreign types must discard some information
+//! due to the target type being unable to represent it.  See the "Data Loss"
+//! sections in the documentation of the `From` impls for specific information.
 
 mod attributes;
 mod color;
