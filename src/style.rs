@@ -31,8 +31,8 @@ impl Style {
         Style {
             foreground: None,
             background: None,
-            enabled_attributes: AttributeSet::empty(),
-            disabled_attributes: AttributeSet::empty(),
+            enabled_attributes: AttributeSet::EMPTY,
+            disabled_attributes: AttributeSet::EMPTY,
         }
     }
 
@@ -463,13 +463,13 @@ mod test {
 
         #[test]
         fn all_attrs() {
-            let style = Style::from(AttributeSet::full());
+            let style = Style::from(AttributeSet::ALL);
             assert_eq!(style.to_string(), "bold dim italic underline blink blink2 reverse conceal strike underline2 frame encircle overline");
         }
 
         #[test]
         fn not_all_attrs() {
-            let style = Style::new().disabled_attributes(AttributeSet::full());
+            let style = Style::new().disabled_attributes(AttributeSet::ALL);
             assert_eq!(style.to_string(), "not bold not dim not italic not underline not blink not blink2 not reverse not conceal not strike not underline2 not frame not encircle not overline");
         }
     }

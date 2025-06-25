@@ -1,60 +1,63 @@
-use flagset::{flags, FlagSet};
 use std::fmt;
 use thiserror::Error;
 
-/// A set of [`Attribute`] values
-pub type AttributeSet = FlagSet<Attribute>;
-
-flags! {
-    /// Individual effects that can be applied to text in a terminal.
-    ///
-    /// [`Attribute`] values can be combined with bitwise operators to produce
-    /// [`AttributeSet`]s.
-    ///
-    /// `Attribute` values can be [parsed][std::str::FromStr] from the
-    /// following case-insensitive strings:
-    ///
-    /// - `"bold"` or `"b"` — `Bold`
-    /// - `"dim"` or `"d"` — `Dim`
-    /// - `"italic"` or `"i"` — `Italic`
-    /// - `"underline"` or `"u"` — `Underline`
-    /// - `"blink"` — `Blink`
-    /// - `"blink2"` — `Blink2`
-    /// - `"reverse"` or `"r"` — `Reverse`
-    /// - `"conceal"` or `"c"` — `Conceal`
-    /// - `"strike"` or `"s"` — `Strike`
-    /// - `"underline2"` or `"uu"` — `Underline2`
-    /// - `"frame"` — `Frame`
-    /// - `"encircle"` — `Encircle`
-    /// - `"overline"` — `Overline`
-    ///
-    /// `Attribute` values are [displayed][std::fmt::Display] as lowercase
-    /// strings from the above list; for values with two strings, the longer
-    /// one is used.
-    #[derive(Hash, Ord, PartialOrd)]
-    pub enum Attribute: u16 {
-        Bold,
-        Dim,
-        Italic,
-        Underline,
-        Blink,
-        /// Fast blinking
-        Blink2,
-        /// Reverse video
-        Reverse,
-        /// Concealed/hidden
-        Conceal,
-        /// Strikethrough
-        Strike,
-        /// Double-underline
-        Underline2,
-        Frame,
-        Encircle,
-        Overline,
-    }
+/// Individual effects that can be applied to text in a terminal.
+///
+/// `Attribute` values can be combined with bitwise operators to produce
+/// [`AttributeSet`]s.
+///
+/// `Attribute` values can be [parsed][std::str::FromStr] from the
+/// following case-insensitive strings:
+///
+/// - `"bold"` or `"b"` — `Bold`
+/// - `"dim"` or `"d"` — `Dim`
+/// - `"italic"` or `"i"` — `Italic`
+/// - `"underline"` or `"u"` — `Underline`
+/// - `"blink"` — `Blink`
+/// - `"blink2"` — `Blink2`
+/// - `"reverse"` or `"r"` — `Reverse`
+/// - `"conceal"` or `"c"` — `Conceal`
+/// - `"strike"` or `"s"` — `Strike`
+/// - `"underline2"` or `"uu"` — `Underline2`
+/// - `"frame"` — `Frame`
+/// - `"encircle"` — `Encircle`
+/// - `"overline"` — `Overline`
+///
+/// `Attribute` values are [displayed][std::fmt::Display] as lowercase
+/// strings from the above list; for values with two strings, the longer
+/// one is used.
+#[derive(Clone, Copy, Debug, strum::EnumIter, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[repr(u16)]
+pub enum Attribute {
+    Bold = 1 << 0,
+    Dim = 1 << 1,
+    Italic = 1 << 2,
+    Underline = 1 << 3,
+    Blink = 1 << 4,
+    /// Fast blinking
+    Blink2 = 1 << 5,
+    /// Reverse video
+    Reverse = 1 << 6,
+    /// Concealed/hidden
+    Conceal = 1 << 7,
+    /// Strikethrough
+    Strike = 1 << 8,
+    /// Double-underline
+    Underline2 = 1 << 9,
+    Frame = 1 << 10,
+    Encircle = 1 << 11,
+    Overline = 1 << 12,
 }
 
 impl Attribute {
+    const COUNT: u16 = 13;
+
+    /// Returns an iterator over all [`Attribute`] variants
+    pub fn iter() -> AttributeIter {
+        // To avoid the need for users to import the trait
+        <Attribute as strum::IntoEnumIterator>::iter()
+    }
+
     /// Return the long name of the attribute
     ///
     /// # Example
@@ -111,6 +114,204 @@ impl std::str::FromStr for Attribute {
         }
     }
 }
+
+impl<A: Into<AttributeSet>> std::ops::BitAnd<A> for Attribute {
+    type Output = AttributeSet;
+
+    fn bitand(self, rhs: A) -> AttributeSet {
+        AttributeSet((self as u16) & rhs.into().0)
+    }
+}
+
+impl<A: Into<AttributeSet>> std::ops::BitOr<A> for Attribute {
+    type Output = AttributeSet;
+
+    fn bitor(self, rhs: A) -> AttributeSet {
+        AttributeSet((self as u16) | rhs.into().0)
+    }
+}
+
+impl<A: Into<AttributeSet>> std::ops::BitXor<A> for Attribute {
+    type Output = AttributeSet;
+
+    fn bitxor(self, rhs: A) -> AttributeSet {
+        AttributeSet((self as u16) ^ rhs.into().0)
+    }
+}
+
+impl<A: Into<AttributeSet>> std::ops::Sub<A> for Attribute {
+    type Output = AttributeSet;
+
+    fn sub(self, rhs: A) -> AttributeSet {
+        AttributeSet((self as u16) & !rhs.into().0)
+    }
+}
+
+impl std::ops::Not for Attribute {
+    type Output = AttributeSet;
+
+    fn not(self) -> AttributeSet {
+        AttributeSet::ALL - self
+    }
+}
+
+/// A set of [`Attribute`] values.
+///
+/// `AttributeSet` values can be combined with bitwise operators and can be
+/// iterated over.
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct AttributeSet(u16);
+
+impl AttributeSet {
+    /// A set containing no [`Attribute`]s
+    pub const EMPTY: AttributeSet = AttributeSet(0);
+
+    /// A set containing all [`Attribute`]s
+    pub const ALL: AttributeSet = AttributeSet((1 << Attribute::COUNT) - 1);
+
+    /// Return a new set containing no [`Attribute`]s
+    pub fn new() -> AttributeSet {
+        AttributeSet(0)
+    }
+
+    /// Test whether the set is empty
+    pub fn is_empty(self) -> bool {
+        self.0 == 0
+    }
+
+    /// Test whether the set contains all [`Attribute`]s
+    pub fn is_all(self) -> bool {
+        self == Self::ALL
+    }
+
+    /// Test whether the set contains the given [`Attribute`]
+    pub fn contains(self, attr: Attribute) -> bool {
+        self.0 & (attr as u16) != 0
+    }
+}
+
+impl From<Attribute> for AttributeSet {
+    fn from(value: Attribute) -> AttributeSet {
+        AttributeSet(value as u16)
+    }
+}
+
+impl IntoIterator for AttributeSet {
+    type Item = Attribute;
+    type IntoIter = AttributeSetIter;
+
+    fn into_iter(self) -> AttributeSetIter {
+        AttributeSetIter::new(self)
+    }
+}
+
+impl Extend<Attribute> for AttributeSet {
+    fn extend<I: IntoIterator<Item = Attribute>>(&mut self, iter: I) {
+        for attr in iter {
+            *self |= attr;
+        }
+    }
+}
+
+impl<A: Into<AttributeSet>> std::ops::BitAnd<A> for AttributeSet {
+    type Output = AttributeSet;
+
+    fn bitand(self, rhs: A) -> AttributeSet {
+        AttributeSet(self.0 & rhs.into().0)
+    }
+}
+
+impl<A: Into<AttributeSet>> std::ops::BitAndAssign<A> for AttributeSet {
+    fn bitand_assign(&mut self, rhs: A) {
+        self.0 &= rhs.into().0;
+    }
+}
+
+impl<A: Into<AttributeSet>> std::ops::BitOr<A> for AttributeSet {
+    type Output = AttributeSet;
+
+    fn bitor(self, rhs: A) -> AttributeSet {
+        AttributeSet(self.0 | rhs.into().0)
+    }
+}
+
+impl<A: Into<AttributeSet>> std::ops::BitOrAssign<A> for AttributeSet {
+    fn bitor_assign(&mut self, rhs: A) {
+        self.0 |= rhs.into().0;
+    }
+}
+
+impl<A: Into<AttributeSet>> std::ops::BitXor<A> for AttributeSet {
+    type Output = AttributeSet;
+
+    fn bitxor(self, rhs: A) -> AttributeSet {
+        AttributeSet(self.0 ^ rhs.into().0)
+    }
+}
+
+impl<A: Into<AttributeSet>> std::ops::BitXorAssign<A> for AttributeSet {
+    fn bitxor_assign(&mut self, rhs: A) {
+        self.0 ^= rhs.into().0;
+    }
+}
+
+impl<A: Into<AttributeSet>> std::ops::Sub<A> for AttributeSet {
+    type Output = AttributeSet;
+
+    fn sub(self, rhs: A) -> AttributeSet {
+        AttributeSet(self.0 & !rhs.into().0)
+    }
+}
+
+impl<A: Into<AttributeSet>> std::ops::SubAssign<A> for AttributeSet {
+    fn sub_assign(&mut self, rhs: A) {
+        self.0 &= !rhs.into().0;
+    }
+}
+
+impl std::ops::Not for AttributeSet {
+    type Output = AttributeSet;
+
+    fn not(self) -> AttributeSet {
+        AttributeSet(!self.0 & ((1 << Attribute::COUNT) - 1))
+    }
+}
+
+/// An iterator over the [`Attribute`]s in an [`AttributeSet`]
+#[derive(Clone, Debug)]
+pub struct AttributeSetIter {
+    inner: AttributeIter,
+    set: AttributeSet,
+}
+
+impl AttributeSetIter {
+    fn new(set: AttributeSet) -> AttributeSetIter {
+        AttributeSetIter {
+            inner: Attribute::iter(),
+            set,
+        }
+    }
+}
+
+impl Iterator for AttributeSetIter {
+    type Item = Attribute;
+
+    fn next(&mut self) -> Option<Attribute> {
+        self.inner.by_ref().find(|&attr| self.set.contains(attr))
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (0, self.inner.size_hint().1)
+    }
+}
+
+impl DoubleEndedIterator for AttributeSetIter {
+    fn next_back(&mut self) -> Option<Attribute> {
+        self.inner.by_ref().rfind(|&attr| self.set.contains(attr))
+    }
+}
+
+impl std::iter::FusedIterator for AttributeSetIter {}
 
 /// Error returned when parsing an attribute fails
 #[derive(Clone, Debug, Eq, Error, PartialEq)]
