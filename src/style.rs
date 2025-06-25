@@ -441,24 +441,7 @@ impl From<Style> for crossterm::style::ContentStyle {
         use crossterm::style::Attribute as CrossAttrib;
         let foreground_color = value.foreground.map(crossterm::style::Color::from);
         let background_color = value.background.map(crossterm::style::Color::from);
-        let mut attributes = crossterm::style::Attributes::none();
-        for attr in value.enabled_attributes {
-            match attr {
-                Attribute::Bold => attributes.set(CrossAttrib::Bold),
-                Attribute::Dim => attributes.set(CrossAttrib::Dim),
-                Attribute::Italic => attributes.set(CrossAttrib::Italic),
-                Attribute::Underline => attributes.set(CrossAttrib::Underlined),
-                Attribute::Blink => attributes.set(CrossAttrib::SlowBlink),
-                Attribute::Blink2 => attributes.set(CrossAttrib::RapidBlink),
-                Attribute::Reverse => attributes.set(CrossAttrib::Reverse),
-                Attribute::Conceal => attributes.set(CrossAttrib::Hidden),
-                Attribute::Strike => attributes.set(CrossAttrib::CrossedOut),
-                Attribute::Underline2 => attributes.set(CrossAttrib::DoubleUnderlined),
-                Attribute::Frame => attributes.set(CrossAttrib::Framed),
-                Attribute::Encircle => attributes.set(CrossAttrib::Encircled),
-                Attribute::Overline => attributes.set(CrossAttrib::OverLined),
-            }
-        }
+        let mut attributes = crossterm::style::Attributes::from(value.enabled_attributes);
         for attr in value.disabled_attributes {
             match attr {
                 Attribute::Bold => attributes.set(CrossAttrib::NormalIntensity),
