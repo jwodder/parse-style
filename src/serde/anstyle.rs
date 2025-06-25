@@ -7,7 +7,7 @@ use serde::{de::Deserializer, ser::Serializer, Deserialize, Serialize};
 /// Use it like so:
 ///
 /// ```
-/// use serde::{Deserialize, Serialize}
+/// use serde::{Deserialize, Serialize};
 ///
 /// #[derive(Deserialize, Serialize)]
 /// struct MyStruct {
@@ -34,7 +34,7 @@ pub mod style {
 /// Use it like so:
 ///
 /// ```
-/// use serde::{Deserialize, Serialize}
+/// use serde::{Deserialize, Serialize};
 ///
 /// #[derive(Deserialize, Serialize)]
 /// struct MyStruct {
@@ -66,7 +66,7 @@ pub mod color {
 /// Use it like so:
 ///
 /// ```
-/// use serde::{Deserialize, Serialize}
+/// use serde::{Deserialize, Serialize};
 ///
 /// #[derive(Deserialize, Serialize)]
 /// struct MyStruct {
@@ -98,7 +98,7 @@ pub mod ansi256color {
 /// Use it like so:
 ///
 /// ```
-/// use serde::{Deserialize, Serialize}
+/// use serde::{Deserialize, Serialize};
 ///
 /// #[derive(Deserialize, Serialize)]
 /// struct MyStruct {
