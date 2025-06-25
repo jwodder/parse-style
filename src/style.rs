@@ -4,6 +4,13 @@ use std::fmt;
 use thiserror::Error;
 
 /// A terminal text style
+///
+/// `Style` stores two sets of [`Attribute`]s: those attributes that the style
+/// enables, plus those that the style explicitly disables/turns off.  The
+/// latter are relevant if you're applying a style in the middle of text with a
+/// different style; e.g., if a text styled with `"red bold"` contains a
+/// substring styled with `"blue not bold"`, you'd want to know that the bold
+/// effect should be disabled for that substring.
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Style {
     /// The foreground color
@@ -33,13 +40,23 @@ impl Style {
         }
     }
 
-    /// Set the foreground color
+    /// Set or clear the foreground color.
+    ///
+    /// Note that setting the foreground to `None` is different from setting it
+    /// to [`Color::Default`]: if the style is applied in the middle of text
+    /// with a foreground color set, `None` will leave the foreground color
+    /// as-is while `Color::Default` will reset it.
     pub const fn foreground(mut self, fg: Option<Color>) -> Style {
         self.foreground = fg;
         self
     }
 
-    /// Set the background color
+    /// Set or clear the background color
+    ///
+    /// Note that setting the background to `None` is different from setting it
+    /// to [`Color::Default`]: if the style is applied in the middle of text
+    /// with a background color set, `None` will leave the background color
+    /// as-is while `Color::Default` will reset it.
     pub const fn background(mut self, bg: Option<Color>) -> Style {
         self.background = bg;
         self
