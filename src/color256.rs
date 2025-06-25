@@ -3,10 +3,27 @@ use phf::{phf_map, Map};
 use std::fmt;
 use unicase::UniCase;
 
+/// Colors in a 256-value (8-bit) palette
+///
+/// `Color256` values can be [parsed][std::str::FromStr] from case-insensitive
+/// names (see [`name()`]) or from strings of the form `"color({index})"`
+/// (e.g., `"color(2)"` is the same as `"green"` and `"GREEN"`).
+///
+/// `Color256` values are [displayed][std::fmt::Display] as their lowercase
+/// names or, for colors without names, as strings of the form
+/// `"color({index})"`.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Color256(pub u8);
 
 impl Color256 {
+    /// Return the lowercase name of the color as recognized by `rich`.  See
+    /// [this page][table] for the list of color names.
+    ///
+    /// Note that not all colors have a name.  Also note that some greyscale
+    /// colors have two names, one using the spelling "gray" and the other
+    /// "grey"; this method uses the "gray" spellings.
+    ///
+    /// [table]: https://rich.readthedocs.io/en/stable/appendix/colors.html
     pub fn name(self) -> Option<&'static str> {
         match self.0 {
             0 => Some("black"),
