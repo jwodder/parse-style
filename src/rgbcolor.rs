@@ -99,6 +99,19 @@ impl From<anstyle::RgbColor> for RgbColor {
     }
 }
 
+#[cfg(feature = "crossterm")]
+#[cfg_attr(docsrs, doc(cfg(feature = "crossterm")))]
+impl From<RgbColor> for crossterm::style::Color {
+    /// Convert a `RgbColor` to a [`crossterm::style::Color`]
+    fn from(value: RgbColor) -> crossterm::style::Color {
+        crossterm::style::Color::Rgb {
+            r: value.0,
+            g: value.1,
+            b: value.2,
+        }
+    }
+}
+
 impl fmt::Display for RgbColor {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "#{:02x}{:02x}{:02x}", self.0, self.1, self.2)

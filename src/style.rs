@@ -336,6 +336,155 @@ impl From<anstyle::Style> for Style {
     }
 }
 
+#[cfg(feature = "crossterm")]
+#[cfg_attr(docsrs, doc(cfg(feature = "crossterm")))]
+impl From<crossterm::style::Attributes> for Style {
+    /// Convert a [`crossterm::style::Attributes`] to a `Style`
+    ///
+    /// # Data Loss
+    ///
+    /// The following attributes are discarded during conversion:
+    ///
+    /// - [`crossterm::style::Attribute::Undercurled`]
+    /// - [`crossterm::style::Attribute::Underdotted`]
+    /// - [`crossterm::style::Attribute::Underdashed`]
+    /// - [`crossterm::style::Attribute::Fraktur`]
+    /// - [`crossterm::style::Attribute::NoBold`] (because it's dysfunctional)
+    fn from(value: crossterm::style::Attributes) -> Style {
+        use crossterm::style::Attribute as CrossAttrib;
+        let mut set = Style::new();
+        for attr in CrossAttrib::iterator().filter(|&attr| value.has(attr)) {
+            match attr {
+                CrossAttrib::Reset => set = Style::new(),
+                CrossAttrib::Bold => set = set.bold(),
+                CrossAttrib::Dim => set = set.dim(),
+                CrossAttrib::Italic => set = set.italic(),
+                CrossAttrib::Underlined => set = set.underline(),
+                CrossAttrib::DoubleUnderlined => set = set.underline2(),
+                CrossAttrib::Undercurled => (),
+                CrossAttrib::Underdotted => (),
+                CrossAttrib::Underdashed => (),
+                CrossAttrib::SlowBlink => set = set.blink(),
+                CrossAttrib::RapidBlink => set = set.blink2(),
+                CrossAttrib::Reverse => set = set.reverse(),
+                CrossAttrib::Hidden => set = set.conceal(),
+                CrossAttrib::CrossedOut => set = set.strike(),
+                CrossAttrib::Fraktur => (),
+                CrossAttrib::NoBold => (),
+                CrossAttrib::NormalIntensity => set = set.not_bold().not_dim(),
+                CrossAttrib::NoItalic => set = set.not_italic(),
+                CrossAttrib::NoUnderline => set = set.not_underline().not_underline2(),
+                CrossAttrib::NoBlink => set = set.not_blink().not_blink2(),
+                CrossAttrib::NoReverse => set = set.not_reverse(),
+                CrossAttrib::NoHidden => set = set.not_conceal(),
+                CrossAttrib::NotCrossedOut => set = set.not_strike(),
+                CrossAttrib::Framed => set = set.frame(),
+                CrossAttrib::Encircled => set = set.encircle(),
+                CrossAttrib::OverLined => set = set.overline(),
+                CrossAttrib::NotFramedOrEncircled => set = set.not_frame().not_encircle(),
+                CrossAttrib::NotOverLined => set = set.not_overline(),
+                _ => (), // non-exhaustive
+            }
+        }
+        set
+    }
+}
+
+#[cfg(feature = "crossterm")]
+#[cfg_attr(docsrs, doc(cfg(feature = "crossterm")))]
+impl From<crossterm::style::ContentStyle> for Style {
+    /// Convert a [`crossterm::style::ContentStyle`] to a `Style`
+    ///
+    /// # Data Loss
+    ///
+    /// Underline color is discarded during conversion.
+    ///
+    /// The following attributes are discarded during conversion:
+    ///
+    /// - [`crossterm::style::Attribute::Undercurled`]
+    /// - [`crossterm::style::Attribute::Underdotted`]
+    /// - [`crossterm::style::Attribute::Underdashed`]
+    /// - [`crossterm::style::Attribute::Fraktur`]
+    fn from(value: crossterm::style::ContentStyle) -> Style {
+        Style::from(value.attributes)
+            .foreground(value.foreground_color.map(Color::from))
+            .background(value.background_color.map(Color::from))
+    }
+}
+
+#[cfg(feature = "crossterm")]
+#[cfg_attr(docsrs, doc(cfg(feature = "crossterm")))]
+impl From<Style> for crossterm::style::ContentStyle {
+    /// Convert a `Style` to a [`crossterm::style::ContentStyle`]
+    ///
+    /// # Data Loss
+    ///
+    /// Certain pairs of `parse-style` attributes are disabled by a single
+    /// shared `crossterm` attribute.  Thus, when one element of a pair occurs
+    /// in the disabled attributes, the resulting `ContentStyle` will disable
+    /// both elements of the pair.
+    ///
+    /// The pairs are as follows:
+    ///
+    /// - [`Attribute::Bold`] and [`Attribute::Dim`] — both disabled by
+    ///   [`crossterm::style::Attribute::NormalIntensity`]
+    ///
+    /// - [`Attribute::Blink`] and [`Attribute::Blink2`] — both disabled by
+    ///   [`crossterm::style::Attribute::NoBlink`]
+    ///
+    /// - [`Attribute::Underline`] and [`Attribute::Underline2`] — both
+    ///   disabled by [`crossterm::style::Attribute::NoUnderline`]
+    ///
+    /// - [`Attribute::Frame`] and [`Attribute::Encircle`] — both disabled by
+    ///   [`crossterm::style::Attribute::NotFramedOrEncircled`]
+    fn from(value: Style) -> crossterm::style::ContentStyle {
+        use crossterm::style::Attribute as CrossAttrib;
+        let foreground_color = value.foreground.map(crossterm::style::Color::from);
+        let background_color = value.background.map(crossterm::style::Color::from);
+        let mut attributes = crossterm::style::Attributes::none();
+        for attr in value.enabled_attributes {
+            match attr {
+                Attribute::Bold => attributes.set(CrossAttrib::Bold),
+                Attribute::Dim => attributes.set(CrossAttrib::Dim),
+                Attribute::Italic => attributes.set(CrossAttrib::Italic),
+                Attribute::Underline => attributes.set(CrossAttrib::Underlined),
+                Attribute::Blink => attributes.set(CrossAttrib::SlowBlink),
+                Attribute::Blink2 => attributes.set(CrossAttrib::RapidBlink),
+                Attribute::Reverse => attributes.set(CrossAttrib::Reverse),
+                Attribute::Conceal => attributes.set(CrossAttrib::Hidden),
+                Attribute::Strike => attributes.set(CrossAttrib::CrossedOut),
+                Attribute::Underline2 => attributes.set(CrossAttrib::DoubleUnderlined),
+                Attribute::Frame => attributes.set(CrossAttrib::Framed),
+                Attribute::Encircle => attributes.set(CrossAttrib::Encircled),
+                Attribute::Overline => attributes.set(CrossAttrib::OverLined),
+            }
+        }
+        for attr in value.disabled_attributes {
+            match attr {
+                Attribute::Bold => attributes.set(CrossAttrib::NormalIntensity),
+                Attribute::Dim => attributes.set(CrossAttrib::NormalIntensity),
+                Attribute::Italic => attributes.set(CrossAttrib::NoItalic),
+                Attribute::Underline => attributes.set(CrossAttrib::NoUnderline),
+                Attribute::Blink => attributes.set(CrossAttrib::NoBlink),
+                Attribute::Blink2 => attributes.set(CrossAttrib::NoBlink),
+                Attribute::Reverse => attributes.set(CrossAttrib::NoReverse),
+                Attribute::Conceal => attributes.set(CrossAttrib::NoHidden),
+                Attribute::Strike => attributes.set(CrossAttrib::NotCrossedOut),
+                Attribute::Underline2 => attributes.set(CrossAttrib::NoUnderline),
+                Attribute::Frame => attributes.set(CrossAttrib::NotFramedOrEncircled),
+                Attribute::Encircle => attributes.set(CrossAttrib::NotFramedOrEncircled),
+                Attribute::Overline => attributes.set(CrossAttrib::NotOverLined),
+            }
+        }
+        crossterm::style::ContentStyle {
+            foreground_color,
+            background_color,
+            attributes,
+            underline_color: None,
+        }
+    }
+}
+
 impl fmt::Display for Style {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut first = true;

@@ -96,6 +96,9 @@
 //! - `anstyle` — Enable conversions between `parse-style` types and types from
 //!   the [`anstyle`](https://crates.io/crates/anstyle) crate
 //!
+//! - `crossterm` — Enable conversions between `parse-style` types and types
+//!   from the [`crossterm`](https://crates.io/crates/crossterm) crate
+//!
 //! Important: Lossy Conversions
 //! ============================
 //!

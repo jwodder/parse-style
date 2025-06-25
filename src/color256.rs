@@ -389,6 +389,15 @@ impl From<anstyle::Ansi256Color> for Color256 {
     }
 }
 
+#[cfg(feature = "crossterm")]
+#[cfg_attr(docsrs, doc(cfg(feature = "crossterm")))]
+impl From<Color256> for crossterm::style::Color {
+    /// Convert a `Color256` to a [`crossterm::style::Color`]
+    fn from(value: Color256) -> crossterm::style::Color {
+        crossterm::style::Color::AnsiValue(value.0)
+    }
+}
+
 impl fmt::Display for Color256 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.name() {
