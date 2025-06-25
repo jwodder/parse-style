@@ -12,6 +12,7 @@ categories = ["command-line-interface", "parser-implementations"]
 exclude = ["/.*"]
 
 [dependencies]
+anstyle = { version = "1.0.11", optional = true }
 phf = { version = "0.12.1", features = ["macros", "unicase"] }
 strum = { version = "0.27.1", features = ["derive"] }
 thiserror = "2.0.12"
@@ -19,6 +20,13 @@ unicase = "2.8.1"
 
 [dev-dependencies]
 rstest = { version = "0.25.0", default-features = false }
+
+[features]
+anstyle = ["dep:anstyle"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
 
 [lints.rust]
 # Lint groups:

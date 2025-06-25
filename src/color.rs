@@ -58,6 +58,39 @@ impl From<(u8, u8, u8)> for Color {
     }
 }
 
+#[cfg(feature = "anstyle")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
+impl TryFrom<Color> for anstyle::Color {
+    type Error = crate::ConversionError;
+
+    /// Convert a `Color` to an [`anstyle::Color`]
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` if `value` is `Color::Default`, which is not
+    /// representable by `anstyle::Color`
+    fn try_from(value: Color) -> Result<anstyle::Color, crate::ConversionError> {
+        match value {
+            Color::Default => Err(crate::ConversionError),
+            Color::Color256(c) => Ok(anstyle::Color::Ansi256(c.into())),
+            Color::Rgb(c) => Ok(anstyle::Color::Rgb(c.into())),
+        }
+    }
+}
+
+#[cfg(feature = "anstyle")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
+impl From<anstyle::Color> for Color {
+    /// Convert an [`anstyle::Color`] to a `Color`
+    fn from(value: anstyle::Color) -> Color {
+        match value {
+            anstyle::Color::Ansi(c) => Color::Color256(c.into()),
+            anstyle::Color::Ansi256(c) => Color::Color256(c.into()),
+            anstyle::Color::Rgb(c) => Color::Rgb(c.into()),
+        }
+    }
+}
+
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {

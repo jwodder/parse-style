@@ -281,6 +281,61 @@ impl From<AttributeSet> for Style {
     }
 }
 
+#[cfg(feature = "anstyle")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
+impl From<Style> for anstyle::Style {
+    /// Convert a `Style` to an [`anstyle::Style`]
+    ///
+    /// # Data Loss
+    ///
+    /// If the `Style`'s foreground or background color is [`Color::Default`],
+    /// it will be converted to `None`.
+    ///
+    /// The following attributes will be discarded during conversion:
+    ///     - [`Attribute::Blink2`]
+    ///     - [`Attribute::Frame`]
+    ///     - [`Attribute::Encircle`]
+    ///     - [`Attribute::Overline`]
+    ///
+    /// Disabled attributes are discarded during conversion.
+    fn from(value: Style) -> anstyle::Style {
+        anstyle::Style::new()
+            .fg_color(
+                value
+                    .get_foreground()
+                    .and_then(|c| anstyle::Color::try_from(c).ok()),
+            )
+            .bg_color(
+                value
+                    .get_background()
+                    .and_then(|c| anstyle::Color::try_from(c).ok()),
+            )
+            .effects(value.enabled_attributes.into())
+    }
+}
+
+#[cfg(feature = "anstyle")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
+impl From<anstyle::Style> for Style {
+    /// Convert an [`anstyle::Style`] to a `Style`
+    ///
+    /// # Data Loss
+    ///
+    /// Underline color is discarded during conversion.
+    ///
+    /// The following effects are discarded during conversion:
+    ///
+    /// - [`anstyle::Effects::CURLY_UNDERLINE`]
+    /// - [`anstyle::Effects::DOTTED_UNDERLINE`]
+    /// - [`anstyle::Effects::DASHED_UNDERLINE`]
+    fn from(value: anstyle::Style) -> Style {
+        Style::new()
+            .foreground(value.get_fg_color().map(Color::from))
+            .background(value.get_bg_color().map(Color::from))
+            .enabled_attributes(AttributeSet::from(value.get_effects()))
+    }
+}
+
 impl fmt::Display for Style {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut first = true;

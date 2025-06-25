@@ -220,6 +220,83 @@ impl Extend<Attribute> for AttributeSet {
     }
 }
 
+#[cfg(feature = "anstyle")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
+impl From<anstyle::Effects> for AttributeSet {
+    /// Convert an [`anstyle::Effects`] to an `AttributeSet`
+    ///
+    ///
+    /// # Data Loss
+    ///
+    /// The following effects are discarded during conversion, as they have no
+    /// `Attribute` equivalents:
+    ///
+    /// - [`anstyle::Effects::CURLY_UNDERLINE`]
+    /// - [`anstyle::Effects::DOTTED_UNDERLINE`]
+    /// - [`anstyle::Effects::DASHED_UNDERLINE`]
+    fn from(value: anstyle::Effects) -> AttributeSet {
+        let mut set = AttributeSet::new();
+        for eff in value.iter() {
+            match eff {
+                anstyle::Effects::BOLD => set |= Attribute::Bold,
+                anstyle::Effects::DIMMED => set |= Attribute::Dim,
+                anstyle::Effects::ITALIC => set |= Attribute::Italic,
+                anstyle::Effects::UNDERLINE => set |= Attribute::Underline,
+                anstyle::Effects::DOUBLE_UNDERLINE => set |= Attribute::Underline2,
+                anstyle::Effects::CURLY_UNDERLINE => (),
+                anstyle::Effects::DOTTED_UNDERLINE => (),
+                anstyle::Effects::DASHED_UNDERLINE => (),
+                anstyle::Effects::BLINK => set |= Attribute::Blink,
+                anstyle::Effects::INVERT => set |= Attribute::Reverse,
+                anstyle::Effects::HIDDEN => set |= Attribute::Conceal,
+                anstyle::Effects::STRIKETHROUGH => set |= Attribute::Strike,
+                // Because an `Effects` can be either a single effect or
+                // multiple, we need a catch-all arm here, even though the
+                // iterator will only yield single effects.
+                _ => (),
+            }
+        }
+        set
+    }
+}
+
+#[cfg(feature = "anstyle")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anstyle")))]
+impl From<AttributeSet> for anstyle::Effects {
+    /// Convert an `AttributeSet` to an [`anstyle::Effects`]
+    ///
+    /// # Data Loss
+    ///
+    /// The following attributes are discarded during conversion, as they have
+    /// no `anstyle::Effects` equivalents:
+    ///
+    /// - [`Attribute::Blink2`]
+    /// - [`Attribute::Frame`]
+    /// - [`Attribute::Encircle`]
+    /// - [`Attribute::Overline`]
+    fn from(value: AttributeSet) -> anstyle::Effects {
+        let mut efs = anstyle::Effects::new();
+        for attr in value {
+            match attr {
+                Attribute::Bold => efs |= anstyle::Effects::BOLD,
+                Attribute::Dim => efs |= anstyle::Effects::DIMMED,
+                Attribute::Italic => efs |= anstyle::Effects::ITALIC,
+                Attribute::Underline => efs |= anstyle::Effects::UNDERLINE,
+                Attribute::Blink => efs |= anstyle::Effects::BLINK,
+                Attribute::Blink2 => (),
+                Attribute::Reverse => efs |= anstyle::Effects::INVERT,
+                Attribute::Conceal => efs |= anstyle::Effects::HIDDEN,
+                Attribute::Strike => efs |= anstyle::Effects::STRIKETHROUGH,
+                Attribute::Underline2 => efs |= anstyle::Effects::DOUBLE_UNDERLINE,
+                Attribute::Frame => (),
+                Attribute::Encircle => (),
+                Attribute::Overline => (),
+            }
+        }
+        efs
+    }
+}
+
 impl<A: Into<AttributeSet>> std::ops::BitAnd<A> for AttributeSet {
     type Output = AttributeSet;
 
