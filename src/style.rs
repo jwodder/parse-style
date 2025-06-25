@@ -1,5 +1,6 @@
 use super::attributes::{Attribute, AttributeSet};
 use super::color::Color;
+use std::fmt;
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Style {
@@ -49,6 +50,24 @@ impl Style {
     pub fn disabled_attributes<A: Into<AttributeSet>>(mut self, attrs: A) -> Style {
         self.disabled_attributes = attrs.into();
         self
+    }
+
+    /// `true` if the style does not set any colors or attributes
+    pub fn is_empty(self) -> bool {
+        self.foreground.is_none()
+            && self.background.is_none()
+            && self.enabled_attributes.is_empty()
+            && self.disabled_attributes.is_empty()
+    }
+
+    /// `true` if `attr` is enabled and not disabled
+    pub fn is_enabled(self, attr: Attribute) -> bool {
+        self.enabled_attributes.contains(attr) && !self.disabled_attributes.contains(attr)
+    }
+
+    /// `true` if `attr` is disabled and not enabled
+    pub fn is_disabled(self, attr: Attribute) -> bool {
+        self.disabled_attributes.contains(attr) && !self.enabled_attributes.contains(attr)
     }
 
     /// Return the foreground color
@@ -229,5 +248,54 @@ impl Style {
     /// Disable overlining
     pub fn no_overline(self) -> Style {
         self.disable_attribute(Attribute::Overline)
+    }
+}
+
+impl fmt::Display for Style {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut first = true;
+        for attr in [
+            Attribute::Bold,
+            Attribute::Dim,
+            Attribute::Italic,
+            Attribute::Underline,
+            Attribute::Blink,
+            Attribute::Blink2,
+            Attribute::Reverse,
+            Attribute::Conceal,
+            Attribute::Strike,
+            Attribute::Underline2,
+            Attribute::Frame,
+            Attribute::Encircle,
+            Attribute::Overline,
+        ] {
+            if self.is_enabled(attr) {
+                if !std::mem::replace(&mut first, false) {
+                    write!(f, " ")?;
+                }
+                write!(f, "{attr}")?;
+            } else if self.is_disabled(attr) {
+                if !std::mem::replace(&mut first, false) {
+                    write!(f, " ")?;
+                }
+                write!(f, "not {attr}")?;
+            }
+        }
+        if let Some(fg) = self.foreground {
+            if !std::mem::replace(&mut first, false) {
+                write!(f, " ")?;
+            }
+            write!(f, "{fg}")?;
+        }
+        if let Some(bg) = self.background {
+            if !std::mem::replace(&mut first, false) {
+                write!(f, " ")?;
+            }
+            write!(f, "on {bg}")?;
+        }
+        if first {
+            write!(f, "none")?;
+        }
+        Ok(())
     }
 }
