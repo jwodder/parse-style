@@ -4,9 +4,10 @@ use crate::rgbcolor::RgbColor;
 use std::fmt;
 
 /// An enum of the different color types
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum Color {
     /// The terminal's default foreground or background color
+    #[default]
     Default,
     Color256(Color256),
     Rgb(RgbColor),
