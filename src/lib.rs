@@ -7,7 +7,7 @@ pub use crate::attributes::{Attribute, AttributeSet, ParseAttributeError};
 pub use crate::color::Color;
 pub use crate::color256::Color256;
 pub use crate::rgbcolor::RgbColor;
-pub use crate::style::Style;
+pub use crate::style::{ParseStyleError, Style};
 use thiserror::Error;
 
 /// Error returned when parsing a color string fails

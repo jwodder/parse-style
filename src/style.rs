@@ -1,20 +1,21 @@
 use super::attributes::{Attribute, AttributeSet};
 use super::color::Color;
 use std::fmt;
+use thiserror::Error;
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Style {
     /// The foreground color
-    foreground: Option<Color>,
+    pub foreground: Option<Color>,
 
     /// The background color
-    background: Option<Color>,
+    pub background: Option<Color>,
 
     /// Active/enabled attributes
-    enabled_attributes: AttributeSet,
+    pub enabled_attributes: AttributeSet,
 
     /// Explicitly disabled attributes
-    disabled_attributes: AttributeSet,
+    pub disabled_attributes: AttributeSet,
 }
 
 impl Style {
@@ -298,4 +299,47 @@ impl fmt::Display for Style {
         }
         Ok(())
     }
+}
+
+impl std::str::FromStr for Style {
+    type Err = ParseStyleError;
+
+    fn from_str(s: &str) -> Result<Style, ParseStyleError> {
+        let mut style = Style::new();
+        if s.trim().eq_ignore_ascii_case("none") {
+            return Ok(style);
+        }
+
+        let mut words = s.split_whitespace();
+        while let Some(token) = words.next() {
+            if token.eq_ignore_ascii_case("on") {
+                let Some(bg) = words.next().and_then(|s| s.parse::<Color>().ok()) else {
+                    return Err(ParseStyleError::MissingBackground);
+                };
+                style.background = Some(bg);
+            } else if token.eq_ignore_ascii_case("not") {
+                let Some(attr) = words.next().and_then(|s| s.parse::<Attribute>().ok()) else {
+                    return Err(ParseStyleError::MissingAttribute);
+                };
+                style.disable_attribute(attr);
+            } else if let Ok(color) = token.parse::<Color>() {
+                style.foreground = Some(color);
+            } else if let Ok(attr) = token.parse::<Attribute>() {
+                style.enable_attribute(attr);
+            } else {
+                return Err(ParseStyleError::Token(token.to_owned()));
+            }
+        }
+        Ok(style)
+    }
+}
+
+#[derive(Clone, Debug, Eq, Error, PartialEq)]
+pub enum ParseStyleError {
+    #[error("unexpected token in style string: {0:?}")]
+    Token(String),
+    #[error(r#""on" not followed by valid color string"#)]
+    MissingBackground,
+    #[error(r#""not" not followed by valid attribute name"#)]
+    MissingAttribute,
 }
