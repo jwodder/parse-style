@@ -123,7 +123,7 @@ mod tests {
     #[case("rgb(78,126)")]
     #[case("rgb(78,126,70,0)")]
     #[case("rgb(0x7f,0xff,0x00)")]
-    fn test_parse_er(#[case] s: &str) {
+    fn test_parse_err(#[case] s: &str) {
         assert!(s.parse::<RgbColor>().is_err());
     }
 }
