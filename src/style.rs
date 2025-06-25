@@ -287,21 +287,7 @@ impl From<AttributeSet> for Style {
 impl fmt::Display for Style {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut first = true;
-        for attr in [
-            Attribute::Bold,
-            Attribute::Dim,
-            Attribute::Italic,
-            Attribute::Underline,
-            Attribute::Blink,
-            Attribute::Blink2,
-            Attribute::Reverse,
-            Attribute::Conceal,
-            Attribute::Strike,
-            Attribute::Underline2,
-            Attribute::Frame,
-            Attribute::Encircle,
-            Attribute::Overline,
-        ] {
+        for attr in Attribute::iter() {
             if self.is_enabled(attr) {
                 if !std::mem::replace(&mut first, false) {
                     write!(f, " ")?;
