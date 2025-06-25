@@ -6,6 +6,8 @@ use std::fmt;
 /// An enum of the different color types
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum Color {
+    /// The terminal's default foreground or background color
+    Default,
     Color256(Color256),
     Rgb(RgbColor),
 }
@@ -37,6 +39,7 @@ impl From<(u8, u8, u8)> for Color {
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Color::Default => write!(f, "default"),
             Color::Color256(c) => write!(f, "{c}"),
             Color::Rgb(c) => write!(f, "{c}"),
         }
@@ -47,15 +50,24 @@ impl std::str::FromStr for Color {
     type Err = ParseColorError;
 
     fn from_str(s: &str) -> Result<Color, ParseColorError> {
-        s.parse::<Color256>()
-            .map(Color::from)
-            .or_else(|_| s.parse::<RgbColor>().map(Color::from))
+        if s.eq_ignore_ascii_case("default") {
+            Ok(Color::Default)
+        } else {
+            s.parse::<Color256>()
+                .map(Color::from)
+                .or_else(|_| s.parse::<RgbColor>().map(Color::from))
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_display_default() {
+        assert_eq!(Color::Default.to_string(), "default");
+    }
 
     #[test]
     fn test_display_color256() {
@@ -65,6 +77,11 @@ mod tests {
     #[test]
     fn test_display_rgbcolor() {
         assert_eq!(Color::from((111, 120, 189)).to_string(), "#6f78bd");
+    }
+
+    #[test]
+    fn test_parse_default() {
+        assert_eq!("default".parse::<Color>().unwrap(), Color::Default);
     }
 
     #[test]
