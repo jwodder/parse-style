@@ -9,7 +9,7 @@ repository = "https://github.com/jwodder/parse-style"
 license = "MIT"
 keywords = ["ansi", "styling", "terminal", "color"]
 categories = ["command-line-interface", "parser-implementations"]
-exclude = ["/.*"]
+exclude = ["/.*", "/tools"]
 
 [dependencies]
 anstyle = { version = "1.0.11", optional = true }
