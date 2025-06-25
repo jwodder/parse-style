@@ -13,6 +13,7 @@ categories = []
 exclude = ["/.*"]
 
 [dependencies]
+flagset = "0.4.7"
 phf = { version = "0.12.1", features = ["macros", "unicase"] }
 thiserror = "2.0.12"
 unicase = "2.8.1"
