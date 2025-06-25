@@ -7,9 +7,8 @@ description = "Parse & display rich-compatible style strings"
 authors = ["John Thorvald Wodder II <parse-style@varonathe.org>"]
 repository = "https://github.com/jwodder/parse-style"
 license = "MIT"
-keywords = []
-# See <https://crates.io/category_slugs> for a list of categories
-categories = []
+keywords = ["ansi", "styling", "terminal", "color"]
+categories = ["command-line-interface", "parser-implementations"]
 exclude = ["/.*"]
 
 [dependencies]
