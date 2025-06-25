@@ -1,4 +1,6 @@
+use super::ParseColorError;
 use phf::{phf_map, Map};
+use std::fmt;
 use unicase::UniCase;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -279,6 +281,33 @@ impl From<AnsiColor> for u8 {
     }
 }
 
+impl fmt::Display for AnsiColor {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.name() {
+            Some(name) => write!(f, "{name}"),
+            None => write!(f, "color({})", self.0),
+        }
+    }
+}
+
+impl std::str::FromStr for AnsiColor {
+    type Err = ParseColorError;
+
+    fn from_str(s: &str) -> Result<AnsiColor, ParseColorError> {
+        if let Some(color) = BY_NAME.get(&UniCase::ascii(s)).copied() {
+            Ok(color)
+        } else if let Some(index) = s
+            .strip_prefix("color(")
+            .and_then(|s| s.strip_suffix(")"))
+            .and_then(|s| s.parse::<u8>().ok())
+        {
+            Ok(AnsiColor(index))
+        } else {
+            Err(ParseColorError(s.to_owned()))
+        }
+    }
+}
+
 static BY_NAME: Map<UniCase<&'static str>, AnsiColor> = phf_map! {
     UniCase::ascii("black") => AnsiColor(0),
     UniCase::ascii("red") => AnsiColor(1),
@@ -516,3 +545,21 @@ static BY_NAME: Map<UniCase<&'static str>, AnsiColor> = phf_map! {
     UniCase::ascii("grey93") => AnsiColor(255),
     UniCase::ascii("gray93") => AnsiColor(255),
 };
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rstest::rstest;
+
+    #[rstest]
+    #[case("black", AnsiColor(0))]
+    #[case("BLACK", AnsiColor(0))]
+    #[case("BlAcK", AnsiColor(0))]
+    #[case("color(0)", AnsiColor(0))]
+    #[case("gray42", AnsiColor(242))]
+    #[case("grey42", AnsiColor(242))]
+    #[case("color(242)", AnsiColor(242))]
+    fn test_parse(#[case] s: &str, #[case] color: AnsiColor) {
+        assert_eq!(s.parse::<AnsiColor>().unwrap(), color);
+    }
+}

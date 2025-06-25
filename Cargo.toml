@@ -14,9 +14,11 @@ exclude = ["/.*"]
 
 [dependencies]
 phf = { version = "0.12.1", features = ["macros", "unicase"] }
+thiserror = "2.0.12"
 unicase = "2.8.1"
 
 [dev-dependencies]
+rstest = { version = "0.25.0", default-features = false }
 
 [lints.rust]
 # Lint groups:
