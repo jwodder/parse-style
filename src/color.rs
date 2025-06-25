@@ -91,6 +91,48 @@ impl From<anstyle::Color> for Color {
     }
 }
 
+#[cfg(feature = "crossterm")]
+#[cfg_attr(docsrs, doc(cfg(feature = "crossterm")))]
+impl From<Color> for crossterm::style::Color {
+    /// Convert a `Color` to a [`crossterm::style::Color`]
+    fn from(value: Color) -> crossterm::style::Color {
+        match value {
+            Color::Default => crossterm::style::Color::Reset,
+            Color::Color256(c) => c.into(),
+            Color::Rgb(c) => c.into(),
+        }
+    }
+}
+
+#[cfg(feature = "crossterm")]
+#[cfg_attr(docsrs, doc(cfg(feature = "crossterm")))]
+impl From<crossterm::style::Color> for Color {
+    /// Convert a [`crossterm::style::Color`] to a `Color`
+    fn from(value: crossterm::style::Color) -> Color {
+        match value {
+            crossterm::style::Color::Reset => Color::Default,
+            crossterm::style::Color::Black => Color256::BRIGHT_BLACK.into(),
+            crossterm::style::Color::DarkGrey => Color256::BLACK.into(),
+            crossterm::style::Color::Red => Color256::BRIGHT_RED.into(),
+            crossterm::style::Color::DarkRed => Color256::RED.into(),
+            crossterm::style::Color::Green => Color256::BRIGHT_GREEN.into(),
+            crossterm::style::Color::DarkGreen => Color256::GREEN.into(),
+            crossterm::style::Color::Yellow => Color256::BRIGHT_YELLOW.into(),
+            crossterm::style::Color::DarkYellow => Color256::YELLOW.into(),
+            crossterm::style::Color::Blue => Color256::BRIGHT_BLUE.into(),
+            crossterm::style::Color::DarkBlue => Color256::BLUE.into(),
+            crossterm::style::Color::Magenta => Color256::BRIGHT_MAGENTA.into(),
+            crossterm::style::Color::DarkMagenta => Color256::MAGENTA.into(),
+            crossterm::style::Color::Cyan => Color256::BRIGHT_CYAN.into(),
+            crossterm::style::Color::DarkCyan => Color256::CYAN.into(),
+            crossterm::style::Color::White => Color256::BRIGHT_WHITE.into(),
+            crossterm::style::Color::Grey => Color256::WHITE.into(),
+            crossterm::style::Color::Rgb { r, g, b } => RgbColor(r, g, b).into(),
+            crossterm::style::Color::AnsiValue(index) => Color256(index).into(),
+        }
+    }
+}
+
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
