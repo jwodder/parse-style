@@ -1,6 +1,7 @@
 use super::ParseColorError;
 use crate::color::Color;
 use crate::style::Style;
+use crate::util::strip_nocase_prefix;
 use std::fmt;
 
 /// A 24-bit color composed of red, green, and blue components
@@ -98,7 +99,7 @@ impl std::str::FromStr for RgbColor {
             let green = u8::from_str_radix(&hex[2..4], 16).expect("should be valid hex string");
             let blue = u8::from_str_radix(&hex[4..], 16).expect("should be valid hex string");
             Ok(RgbColor(red, green, blue))
-        } else if let Some(dec) = s.strip_prefix("rgb(").and_then(|s| s.strip_suffix(')')) {
+        } else if let Some(dec) = strip_nocase_prefix(s, "rgb(").and_then(|s| s.strip_suffix(')')) {
             let mut rgb = dec.split(',').map(str::parse::<u8>);
             let red = rgb.next();
             let green = rgb.next();
@@ -130,6 +131,7 @@ mod tests {
     #[case("#7fff00", RgbColor(0x7F, 0xFF, 0x00))]
     #[case("#7FFF00", RgbColor(0x7F, 0xFF, 0x00))]
     #[case("rgb(78,126,70)", RgbColor(78, 126, 70))]
+    #[case("RGB(78,126,70)", RgbColor(78, 126, 70))]
     fn test_parse(#[case] s: &str, #[case] color: RgbColor) {
         assert_eq!(s.parse::<RgbColor>().unwrap(), color);
     }
@@ -138,7 +140,6 @@ mod tests {
     #[case("7fff00")]
     #[case("# 7fff00")]
     #[case("#000")]
-    #[case("RGB(78,126,70)")]
     #[case("rgb(78, 126, 70)")]
     #[case("rgb(78,126)")]
     #[case("rgb(78,126,70,0)")]

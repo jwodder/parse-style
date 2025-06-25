@@ -1,6 +1,7 @@
 use super::ParseColorError;
 use crate::color::Color;
 use crate::style::Style;
+use crate::util::strip_nocase_prefix;
 use phf::{phf_map, Map};
 use std::fmt;
 use unicase::UniCase;
@@ -376,8 +377,7 @@ impl std::str::FromStr for Color256 {
     fn from_str(s: &str) -> Result<Color256, ParseColorError> {
         if let Some(color) = BY_NAME.get(&UniCase::ascii(s)).copied() {
             Ok(color)
-        } else if let Some(index) = s
-            .strip_prefix("color(")
+        } else if let Some(index) = strip_nocase_prefix(s, "color(")
             .and_then(|s| s.strip_suffix(')'))
             .and_then(|s| s.parse::<u8>().ok())
         {
@@ -636,6 +636,7 @@ mod tests {
     #[case("BLACK", Color256(0))]
     #[case("BlAcK", Color256(0))]
     #[case("color(0)", Color256(0))]
+    #[case("COLOR(0)", Color256(0))]
     #[case("gray42", Color256(242))]
     #[case("grey42", Color256(242))]
     #[case("color(242)", Color256(242))]

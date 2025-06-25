@@ -92,6 +92,7 @@ mod color;
 mod color256;
 mod rgbcolor;
 mod style;
+mod util;
 pub use crate::attributes::{Attribute, AttributeSet, ParseAttributeError};
 pub use crate::color::Color;
 pub use crate::color256::Color256;
