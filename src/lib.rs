@@ -1,5 +1,7 @@
+mod color;
 mod color256;
 mod rgbcolor;
+pub use crate::color::Color;
 pub use crate::color256::Color256;
 pub use crate::rgbcolor::RgbColor;
 use thiserror::Error;
