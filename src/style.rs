@@ -3,6 +3,7 @@ use super::color::Color;
 use std::fmt;
 use thiserror::Error;
 
+/// A terminal text style
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Style {
     /// The foreground color
@@ -15,6 +16,12 @@ pub struct Style {
     pub enabled_attributes: AttributeSet,
 
     /// Explicitly disabled attributes
+    ///
+    /// Note that, while the individual `Style` methods will keep things
+    /// "normalized," manual field manipulation can produce styles in which the
+    /// same attribute is in both `enabled_attributes` and
+    /// `disabled_attributes`; methods like [`is_enabled()`][Style::is_enabled]
+    /// will treat such attributes as neither enabled nor disabled.
     pub disabled_attributes: AttributeSet,
 }
 
@@ -109,148 +116,150 @@ impl Style {
         }
     }
 
-    /// Enable the given attribute
-    pub fn enable_attribute(mut self, attr: Attribute) -> Style {
-        self.enabled_attributes |= attr;
-        self.disabled_attributes -= attr;
+    /// Enable the given attribute(s)
+    pub fn enable<A: Into<AttributeSet>>(mut self, attrs: A) -> Style {
+        let attrs = attrs.into();
+        self.enabled_attributes |= attrs;
+        self.disabled_attributes -= attrs;
         self
     }
 
-    /// Disable the given attribute
-    pub fn disable_attribute(mut self, attr: Attribute) -> Style {
-        self.enabled_attributes -= attr;
-        self.disabled_attributes |= attr;
+    /// Disable the given attribute(s)
+    pub fn disable<A: Into<AttributeSet>>(mut self, attrs: A) -> Style {
+        let attrs = attrs.into();
+        self.enabled_attributes -= attrs;
+        self.disabled_attributes |= attrs;
         self
     }
 
     /// Enable bold text
     pub fn bold(self) -> Style {
-        self.enable_attribute(Attribute::Bold)
+        self.enable(Attribute::Bold)
     }
 
     /// Enable dim text
     pub fn dim(self) -> Style {
-        self.enable_attribute(Attribute::Dim)
+        self.enable(Attribute::Dim)
     }
 
     /// Enable italic text
     pub fn italic(self) -> Style {
-        self.enable_attribute(Attribute::Italic)
+        self.enable(Attribute::Italic)
     }
 
     /// Enable underlining
     pub fn underline(self) -> Style {
-        self.enable_attribute(Attribute::Underline)
+        self.enable(Attribute::Underline)
     }
 
     /// Enable blinking
     pub fn blink(self) -> Style {
-        self.enable_attribute(Attribute::Blink)
+        self.enable(Attribute::Blink)
     }
 
     /// Enable fast blinking
     pub fn blink2(self) -> Style {
-        self.enable_attribute(Attribute::Blink2)
+        self.enable(Attribute::Blink2)
     }
 
     /// Enable reverse video
     pub fn reverse(self) -> Style {
-        self.enable_attribute(Attribute::Reverse)
+        self.enable(Attribute::Reverse)
     }
 
     /// Enable concealed/hidden text
     pub fn conceal(self) -> Style {
-        self.enable_attribute(Attribute::Conceal)
+        self.enable(Attribute::Conceal)
     }
 
     /// Enable strikethrough
     pub fn strike(self) -> Style {
-        self.enable_attribute(Attribute::Strike)
+        self.enable(Attribute::Strike)
     }
 
     /// Enable double-underlining
     pub fn underline2(self) -> Style {
-        self.enable_attribute(Attribute::Underline2)
+        self.enable(Attribute::Underline2)
     }
 
     /// Enable framed text
     pub fn frame(self) -> Style {
-        self.enable_attribute(Attribute::Frame)
+        self.enable(Attribute::Frame)
     }
 
     /// Enable encircled text
     pub fn encircle(self) -> Style {
-        self.enable_attribute(Attribute::Encircle)
+        self.enable(Attribute::Encircle)
     }
 
     /// Enable overlining
     pub fn overline(self) -> Style {
-        self.enable_attribute(Attribute::Overline)
+        self.enable(Attribute::Overline)
     }
 
     /// Disable bold text
     pub fn not_bold(self) -> Style {
-        self.disable_attribute(Attribute::Bold)
+        self.disable(Attribute::Bold)
     }
 
     /// Disable dim text
     pub fn not_dim(self) -> Style {
-        self.disable_attribute(Attribute::Dim)
+        self.disable(Attribute::Dim)
     }
 
     /// Disable italic text
     pub fn not_italic(self) -> Style {
-        self.disable_attribute(Attribute::Italic)
+        self.disable(Attribute::Italic)
     }
 
     /// Disable underlining
     pub fn not_underline(self) -> Style {
-        self.disable_attribute(Attribute::Underline)
+        self.disable(Attribute::Underline)
     }
 
     /// Disable blinking
     pub fn not_blink(self) -> Style {
-        self.disable_attribute(Attribute::Blink)
+        self.disable(Attribute::Blink)
     }
 
     /// Disable fast blinking
     pub fn not_blink2(self) -> Style {
-        self.disable_attribute(Attribute::Blink2)
+        self.disable(Attribute::Blink2)
     }
 
     /// Disable reverse video
     pub fn not_reverse(self) -> Style {
-        self.disable_attribute(Attribute::Reverse)
+        self.disable(Attribute::Reverse)
     }
 
     /// Disable concealed/hidden text
     pub fn not_conceal(self) -> Style {
-        self.disable_attribute(Attribute::Conceal)
+        self.disable(Attribute::Conceal)
     }
 
     /// Disable strikethrough
     pub fn not_strike(self) -> Style {
-        self.disable_attribute(Attribute::Strike)
+        self.disable(Attribute::Strike)
     }
 
     /// Disable double-underlining
     pub fn not_underline2(self) -> Style {
-        self.disable_attribute(Attribute::Underline2)
+        self.disable(Attribute::Underline2)
     }
 
     /// Disable framed text
     pub fn not_frame(self) -> Style {
-        self.disable_attribute(Attribute::Frame)
+        self.disable(Attribute::Frame)
     }
 
     /// Disable encircled text
     pub fn not_encircle(self) -> Style {
-        self.disable_attribute(Attribute::Encircle)
+        self.disable(Attribute::Encircle)
     }
 
     /// Disable overlining
     pub fn not_overline(self) -> Style {
-        self.disable_attribute(Attribute::Overline)
+        self.disable(Attribute::Overline)
     }
 }
 
@@ -264,7 +273,7 @@ impl<C: Into<Color>> From<C> for Style {
 impl From<Attribute> for Style {
     /// Construct a new `Style` that enables the given attribute
     fn from(value: Attribute) -> Style {
-        Style::new().enable_attribute(value)
+        Style::new().enable(value)
     }
 }
 
@@ -343,11 +352,11 @@ impl std::str::FromStr for Style {
                 let Some(attr) = words.next().and_then(|s| s.parse::<Attribute>().ok()) else {
                     return Err(ParseStyleError::MissingAttribute);
                 };
-                style = style.disable_attribute(attr);
+                style = style.disable(attr);
             } else if let Ok(color) = token.parse::<Color>() {
                 style.foreground = Some(color);
             } else if let Ok(attr) = token.parse::<Attribute>() {
-                style = style.enable_attribute(attr);
+                style = style.enable(attr);
             } else {
                 return Err(ParseStyleError::Token(token.to_owned()));
             }
@@ -356,12 +365,21 @@ impl std::str::FromStr for Style {
     }
 }
 
+/// Error returned when parsing a style fails
 #[derive(Clone, Debug, Eq, Error, PartialEq)]
 pub enum ParseStyleError {
+    /// An invalid/unexpected token was enountered
     #[error("unexpected token in style string: {0:?}")]
-    Token(String),
-    #[error(r#""on" not followed by valid color string"#)]
+    Token(
+        /// The invalid token
+        String,
+    ),
+
+    /// `"on"` was not followed by a valid color word
+    #[error(r#""on" not followed by valid color word"#)]
     MissingBackground,
+
+    /// `"not"` was not followed by a valid attribute name
     #[error(r#""not" not followed by valid attribute name"#)]
     MissingAttribute,
 }
@@ -416,21 +434,21 @@ mod test {
 
         #[test]
         fn not_attr() {
-            let style = Style::new().disable_attribute(Attribute::Bold);
+            let style = Style::new().disable(Attribute::Bold);
             assert_eq!(style.to_string(), "not bold");
         }
 
         #[test]
         fn multiple_not_attrs() {
             let style = Style::new()
-                .disable_attribute(Attribute::Bold)
-                .disable_attribute(Attribute::Reverse);
+                .disable(Attribute::Bold)
+                .disable(Attribute::Reverse);
             assert_eq!(style.to_string(), "not bold not reverse");
         }
 
         #[test]
         fn attr_and_not_attr() {
-            let style = Style::from(Attribute::Bold).disable_attribute(Attribute::Blink);
+            let style = Style::from(Attribute::Bold).disable(Attribute::Blink);
             assert_eq!(style.to_string(), "bold not blink");
         }
 
@@ -438,8 +456,8 @@ mod test {
         fn gamut() {
             let style = Color256::YELLOW
                 .on(Color::Default)
-                .enable_attribute(Attribute::Italic)
-                .disable_attribute(Attribute::Bold);
+                .enable(Attribute::Italic)
+                .disable(Attribute::Bold);
             assert_eq!(style.to_string(), "not bold italic yellow on default");
         }
 
@@ -529,11 +547,11 @@ mod test {
         fn not_attr() {
             assert_eq!(
                 "not bold".parse::<Style>().unwrap(),
-                Style::new().disable_attribute(Attribute::Bold)
+                Style::new().disable(Attribute::Bold)
             );
             assert_eq!(
                 " NOT  BOLD ".parse::<Style>().unwrap(),
-                Style::new().disable_attribute(Attribute::Bold)
+                Style::new().disable(Attribute::Bold)
             );
         }
 
@@ -554,14 +572,14 @@ mod test {
             assert_eq!(
                 "dim not blink2".parse::<Style>().unwrap(),
                 Style::new()
-                    .enable_attribute(Attribute::Dim)
-                    .disable_attribute(Attribute::Blink2)
+                    .enable(Attribute::Dim)
+                    .disable(Attribute::Blink2)
             );
             assert_eq!(
                 "not blink2 dim".parse::<Style>().unwrap(),
                 Style::new()
-                    .enable_attribute(Attribute::Dim)
-                    .disable_attribute(Attribute::Blink2)
+                    .enable(Attribute::Dim)
+                    .disable(Attribute::Blink2)
             );
         }
 

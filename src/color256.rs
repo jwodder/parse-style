@@ -58,6 +58,17 @@ impl Color256 {
     /// "grey"; this method uses the "gray" spellings.
     ///
     /// [table]: https://rich.readthedocs.io/en/stable/appendix/colors.html
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use parse_style::Color256;
+    ///
+    /// assert_eq!(Color256::BRIGHT_YELLOW.name(), Some("bright_yellow"));
+    /// assert_eq!(Color256(42).name(), None);
+    /// assert_eq!(Color256(59).name(), Some("gray37"));
+    /// assert_eq!(Color256(118).name(), Some("chartreuse1"));
+    /// ```
     pub fn name(self) -> Option<&'static str> {
         match self.0 {
             0 => Some("black"),

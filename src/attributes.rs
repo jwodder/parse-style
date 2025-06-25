@@ -55,6 +55,15 @@ flags! {
 }
 
 impl Attribute {
+    /// Return the long name of the attribute
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use parse_style::Attribute;
+    ///
+    /// assert_eq!(Attribute::Bold.as_str(), "bold");
+    /// ```
     pub fn as_str(self) -> &'static str {
         match self {
             Attribute::Bold => "bold",
