@@ -1,4 +1,4 @@
-//! `#[serde(with)]` modules for serializing & deserializing [`anstyle`] types
+//! (De)serializing [`anstyle`] types
 use serde::{de::Deserializer, ser::Serializer, Deserialize, Serialize};
 
 /// A module for use via `#[serde(with)]` for serializing & deserializing
