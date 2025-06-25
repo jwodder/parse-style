@@ -1,5 +1,5 @@
-mod ansi_color;
-pub use ansi_color::AnsiColor;
+mod color256;
+pub use color256::Color256;
 use thiserror::Error;
 
 #[derive(Clone, Debug, Eq, Error, PartialEq)]
