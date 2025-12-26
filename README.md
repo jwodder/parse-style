@@ -1,6 +1,6 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![CI Status](https://github.com/jwodder/parse-style/actions/workflows/test.yml/badge.svg)](https://github.com/jwodder/parse-style/actions/workflows/test.yml)
-[![Minimum Supported Rust Version](https://img.shields.io/badge/MSRV-1.80-orange)](https://www.rust-lang.org)
+[![Minimum Supported Rust Version](https://img.shields.io/badge/MSRV-1.86-orange)](https://www.rust-lang.org)
 [![MIT License](https://img.shields.io/github/license/jwodder/parse-style.svg)](https://opensource.org/licenses/MIT)
 
 [GitHub](https://github.com/jwodder/parse-style) | [crates.io](https://crates.io/crates/parse-style) | [Documentation](https://docs.rs/parse-style) | [Issues](https://github.com/jwodder/parse-style/issues) | [Changelog](https://github.com/jwodder/parse-style/blob/main/CHANGELOG.md)

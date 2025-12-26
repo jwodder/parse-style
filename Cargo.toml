@@ -2,7 +2,7 @@
 name = "parse-style"
 version = "0.2.0-dev"
 edition = "2021"
-rust-version = "1.80"
+rust-version = "1.86"
 description = "Parse & display rich-compatible style strings"
 authors = ["John Thorvald Wodder II <parse-style@varonathe.org>"]
 repository = "https://github.com/jwodder/parse-style"
