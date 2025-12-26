@@ -329,31 +329,31 @@ impl From<AttributeSet> for crossterm::style::Attributes {
 
 #[cfg(feature = "ratatui")]
 #[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
-impl From<AttributeSet> for ratatui::style::Modifier {
-    /// Convert an `AttributeSet` to an [`ratatui::style::Modifier`]
+impl From<AttributeSet> for ratatui_core::style::Modifier {
+    /// Convert an `AttributeSet` to a [`ratatui_core::style::Modifier`]
     ///
     /// # Data Loss
     ///
     /// The following attributes are discarded during conversion, as they have
-    /// no `ratatui::style::Modifier` equivalents:
+    /// no `ratatui_core::style::Modifier` equivalents:
     ///
     /// - [`Attribute::Underline2`]
     /// - [`Attribute::Frame`]
     /// - [`Attribute::Encircle`]
     /// - [`Attribute::Overline`]
-    fn from(value: AttributeSet) -> ratatui::style::Modifier {
-        let mut mods = ratatui::style::Modifier::empty();
+    fn from(value: AttributeSet) -> ratatui_core::style::Modifier {
+        let mut mods = ratatui_core::style::Modifier::empty();
         for attr in value {
             match attr {
-                Attribute::Bold => mods |= ratatui::style::Modifier::BOLD,
-                Attribute::Dim => mods |= ratatui::style::Modifier::DIM,
-                Attribute::Italic => mods |= ratatui::style::Modifier::ITALIC,
-                Attribute::Underline => mods |= ratatui::style::Modifier::UNDERLINED,
-                Attribute::Blink => mods |= ratatui::style::Modifier::SLOW_BLINK,
-                Attribute::Blink2 => mods |= ratatui::style::Modifier::RAPID_BLINK,
-                Attribute::Reverse => mods |= ratatui::style::Modifier::REVERSED,
-                Attribute::Conceal => mods |= ratatui::style::Modifier::HIDDEN,
-                Attribute::Strike => mods |= ratatui::style::Modifier::CROSSED_OUT,
+                Attribute::Bold => mods |= ratatui_core::style::Modifier::BOLD,
+                Attribute::Dim => mods |= ratatui_core::style::Modifier::DIM,
+                Attribute::Italic => mods |= ratatui_core::style::Modifier::ITALIC,
+                Attribute::Underline => mods |= ratatui_core::style::Modifier::UNDERLINED,
+                Attribute::Blink => mods |= ratatui_core::style::Modifier::SLOW_BLINK,
+                Attribute::Blink2 => mods |= ratatui_core::style::Modifier::RAPID_BLINK,
+                Attribute::Reverse => mods |= ratatui_core::style::Modifier::REVERSED,
+                Attribute::Conceal => mods |= ratatui_core::style::Modifier::HIDDEN,
+                Attribute::Strike => mods |= ratatui_core::style::Modifier::CROSSED_OUT,
                 Attribute::Underline2 => (),
                 Attribute::Frame => (),
                 Attribute::Encircle => (),
@@ -366,21 +366,21 @@ impl From<AttributeSet> for ratatui::style::Modifier {
 
 #[cfg(feature = "ratatui")]
 #[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
-impl From<ratatui::style::Modifier> for AttributeSet {
-    /// Convert a [`ratatui::style::Modifier`] to an `AttributeSet`
-    fn from(value: ratatui::style::Modifier) -> AttributeSet {
+impl From<ratatui_core::style::Modifier> for AttributeSet {
+    /// Convert a [`ratatui_core::style::Modifier`] to an `AttributeSet`
+    fn from(value: ratatui_core::style::Modifier) -> AttributeSet {
         let mut set = AttributeSet::new();
         for m in value.iter() {
             match m {
-                ratatui::style::Modifier::BOLD => set |= Attribute::Bold,
-                ratatui::style::Modifier::DIM => set |= Attribute::Dim,
-                ratatui::style::Modifier::ITALIC => set |= Attribute::Italic,
-                ratatui::style::Modifier::UNDERLINED => set |= Attribute::Underline,
-                ratatui::style::Modifier::SLOW_BLINK => set |= Attribute::Blink,
-                ratatui::style::Modifier::RAPID_BLINK => set |= Attribute::Blink,
-                ratatui::style::Modifier::REVERSED => set |= Attribute::Reverse,
-                ratatui::style::Modifier::HIDDEN => set |= Attribute::Conceal,
-                ratatui::style::Modifier::CROSSED_OUT => set |= Attribute::Strike,
+                ratatui_core::style::Modifier::BOLD => set |= Attribute::Bold,
+                ratatui_core::style::Modifier::DIM => set |= Attribute::Dim,
+                ratatui_core::style::Modifier::ITALIC => set |= Attribute::Italic,
+                ratatui_core::style::Modifier::UNDERLINED => set |= Attribute::Underline,
+                ratatui_core::style::Modifier::SLOW_BLINK => set |= Attribute::Blink,
+                ratatui_core::style::Modifier::RAPID_BLINK => set |= Attribute::Blink,
+                ratatui_core::style::Modifier::REVERSED => set |= Attribute::Reverse,
+                ratatui_core::style::Modifier::HIDDEN => set |= Attribute::Conceal,
+                ratatui_core::style::Modifier::CROSSED_OUT => set |= Attribute::Strike,
                 // Because a `Modifier` can be either a single effect or
                 // multiple, we need a catch-all arm here, even though the
                 // iterator will only yield single modifiers.

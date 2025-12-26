@@ -431,10 +431,10 @@ impl From<Color256> for crossterm::style::Color {
 
 #[cfg(feature = "ratatui")]
 #[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
-impl From<Color256> for ratatui::style::Color {
-    /// Convert a `Color256` to a [`ratatui::style::Color`]
-    fn from(value: Color256) -> ratatui::style::Color {
-        ratatui::style::Color::Indexed(value.0)
+impl From<Color256> for ratatui_core::style::Color {
+    /// Convert a `Color256` to a [`ratatui_core::style::Color`]
+    fn from(value: Color256) -> ratatui_core::style::Color {
+        ratatui_core::style::Color::Indexed(value.0)
     }
 }
 
