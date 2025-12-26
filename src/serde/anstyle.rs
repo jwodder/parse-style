@@ -1,5 +1,5 @@
 //! (De)serializing [`anstyle`] types
-use serde::{de::Deserializer, ser::Serializer, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::Deserializer, ser::Serializer};
 
 /// A module for use via `#[serde(with)]` for serializing & deserializing
 /// [`anstyle::Style`] values as style strings.

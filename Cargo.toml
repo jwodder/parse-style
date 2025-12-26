@@ -1,7 +1,7 @@
 [package]
 name = "parse-style"
 version = "0.2.0-dev"
-edition = "2021"
+edition = "2024"
 rust-version = "1.86"
 description = "Parse & display rich-compatible style strings"
 authors = ["John Thorvald Wodder II <parse-style@varonathe.org>"]
