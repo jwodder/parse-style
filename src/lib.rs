@@ -105,7 +105,7 @@
 //!   from the [`crossterm`](https://crates.io/crates/crossterm) crate
 //!
 //! - `ratatui` — Enables conversions between `parse-style` types and types
-//!   from the [`ratatui`](https://crates.io/crates/ratatui) crate
+//!   from the [`ratatui-core`](https://crates.io/crates/ratatui-core) crate
 //!
 //! - `serde` — Enables [`serde`](https://serde.rs) implementations for
 //!   (de)serializing `Style` values as style strings and colors as color

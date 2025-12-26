@@ -1,8 +1,8 @@
-//! (De)serializing [`ratatui`] types
+//! (De)serializing [`ratatui-core`] types
 use serde::{de::Deserializer, ser::Serializer, Deserialize, Serialize};
 
 /// A module for use via `#[serde(with)]` for serializing & deserializing
-/// [`ratatui::style::Style`] values as style strings.
+/// [`ratatui_core::style::Style`] values as style strings.
 ///
 /// Use it like so:
 ///
@@ -12,12 +12,12 @@ use serde::{de::Deserializer, ser::Serializer, Deserialize, Serialize};
 /// #[derive(Deserialize, Serialize)]
 /// struct MyStruct {
 ///     #[serde(with = "parse_style::serde::ratatui::style")]
-///     style: ratatui::style::Style,
+///     style: ratatui_core::style::Style,
 /// }
 /// ```
 pub mod style {
     use super::*;
-    use ratatui::style::Style;
+    use ratatui_core::style::Style;
 
     pub fn serialize<S: Serializer>(style: &Style, serializer: S) -> Result<S::Ok, S::Error> {
         crate::Style::from(*style).serialize(serializer)
@@ -29,7 +29,7 @@ pub mod style {
 }
 
 /// A module for use via `#[serde(with)]` for serializing & deserializing
-/// [`ratatui::style::Color`] values as color words and RGB codes.
+/// [`ratatui_core::style::Color`] values as color words and RGB codes.
 ///
 /// Use it like so:
 ///
@@ -39,12 +39,12 @@ pub mod style {
 /// #[derive(Deserialize, Serialize)]
 /// struct MyStruct {
 ///     #[serde(with = "parse_style::serde::ratatui::color")]
-///     color: ratatui::style::Color,
+///     color: ratatui_core::style::Color,
 /// }
 /// ```
 pub mod color {
     use super::*;
-    use ratatui::style::Color;
+    use ratatui_core::style::Color;
 
     pub fn serialize<S: Serializer>(color: &Color, serializer: S) -> Result<S::Ok, S::Error> {
         crate::Color::from(*color).serialize(serializer)

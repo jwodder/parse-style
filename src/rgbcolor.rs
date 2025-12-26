@@ -114,10 +114,10 @@ impl From<RgbColor> for crossterm::style::Color {
 
 #[cfg(feature = "ratatui")]
 #[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
-impl From<RgbColor> for ratatui::style::Color {
-    /// Convert an `RgbColor` to a [`ratatui::style::Color`]
-    fn from(value: RgbColor) -> ratatui::style::Color {
-        ratatui::style::Color::Rgb(value.0, value.1, value.2)
+impl From<RgbColor> for ratatui_core::style::Color {
+    /// Convert an `RgbColor` to a [`ratatui_core::style::Color`]
+    fn from(value: RgbColor) -> ratatui_core::style::Color {
+        ratatui_core::style::Color::Rgb(value.0, value.1, value.2)
     }
 }
 

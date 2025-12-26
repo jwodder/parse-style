@@ -1,6 +1,6 @@
 [package]
 name = "parse-style"
-version = "0.1.0"
+version = "0.2.0-dev"
 edition = "2021"
 rust-version = "1.80"
 description = "Parse & display rich-compatible style strings"
@@ -16,7 +16,7 @@ anstyle = { version = "1.0.11", optional = true }
 # crossterm needs the "windows" feature just to compile on Windows:
 crossterm = { version = "0.29.0", optional = true, default-features = false, features = ["windows"] }
 phf = { version = "0.13.1", features = ["macros", "unicase"] }
-ratatui = { version = "0.29.0", default-features = false, optional = true }
+ratatui-core = { version = "0.1.0", default-features = false, optional = true }
 serde = { version = "1.0.219", optional = true }
 strum = { version = "0.27.1", features = ["derive"] }
 thiserror = "2.0.12"
@@ -29,7 +29,7 @@ serde = { version = "1.0.219", features = ["derive"] }
 [features]
 anstyle = ["dep:anstyle"]
 crossterm = ["dep:crossterm"]
-ratatui = ["dep:ratatui"]
+ratatui = ["dep:ratatui-core"]
 serde = ["dep:serde"]
 
 [package.metadata.docs.rs]

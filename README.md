@@ -3,7 +3,7 @@
 [![Minimum Supported Rust Version](https://img.shields.io/badge/MSRV-1.80-orange)](https://www.rust-lang.org)
 [![MIT License](https://img.shields.io/github/license/jwodder/parse-style.svg)](https://opensource.org/licenses/MIT)
 
-[GitHub](https://github.com/jwodder/parse-style) | [crates.io](https://crates.io/crates/parse-style) | [Documentation](https://docs.rs/parse-style) | [Issues](https://github.com/jwodder/parse-style/issues)
+[GitHub](https://github.com/jwodder/parse-style) | [crates.io](https://crates.io/crates/parse-style) | [Documentation](https://docs.rs/parse-style) | [Issues](https://github.com/jwodder/parse-style/issues) | [Changelog](https://github.com/jwodder/parse-style/blob/main/CHANGELOG.md)
 
 `parse-style` is a [Rust](https://www.rust-lang.org) library for parsing &
 displaying strings describing styles for terminal text using a syntax
@@ -111,7 +111,7 @@ The `parse-style` crate has the following optional features:
   the [`crossterm`](https://crates.io/crates/crossterm) crate
 
 - `ratatui` — Enables conversions between `parse-style` types and types from
-  the [`ratatui`](https://crates.io/crates/ratatui) crate
+  the [`ratatui-core`](https://crates.io/crates/ratatui-core) crate
 
 - `serde` — Enables [`serde`](https://serde.rs) implementations for
   (de)serializing `Style` values as style strings and colors as color strings.

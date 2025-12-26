@@ -488,8 +488,8 @@ impl From<crossterm::style::ContentStyle> for Style {
 
 #[cfg(feature = "ratatui")]
 #[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
-impl From<Style> for ratatui::style::Style {
-    /// Convert a `Style` to a [`ratatui::style::Style`]
+impl From<Style> for ratatui_core::style::Style {
+    /// Convert a `Style` to a [`ratatui_core::style::Style`]
     ///
     /// # Data Loss
     ///
@@ -499,14 +499,14 @@ impl From<Style> for ratatui::style::Style {
     /// - [`Attribute::Frame`]
     /// - [`Attribute::Encircle`]
     /// - [`Attribute::Overline`]
-    fn from(value: Style) -> ratatui::style::Style {
+    fn from(value: Style) -> ratatui_core::style::Style {
         // Don't try to construct a ratatui Style using struct notation, as the
         // `underline_color` field is feature-based.
-        let mut style = ratatui::style::Style::new();
-        if let Some(fg) = value.foreground.map(ratatui::style::Color::from) {
+        let mut style = ratatui_core::style::Style::new();
+        if let Some(fg) = value.foreground.map(ratatui_core::style::Color::from) {
             style = style.fg(fg);
         }
-        if let Some(bg) = value.background.map(ratatui::style::Color::from) {
+        if let Some(bg) = value.background.map(ratatui_core::style::Color::from) {
             style = style.bg(bg);
         }
         style = style.add_modifier(value.enabled_attributes.into());
@@ -517,13 +517,13 @@ impl From<Style> for ratatui::style::Style {
 
 #[cfg(feature = "ratatui")]
 #[cfg_attr(docsrs, doc(cfg(feature = "ratatui")))]
-impl From<ratatui::style::Style> for Style {
-    /// Convert a [`ratatui::style::Style`] to a `Style`
+impl From<ratatui_core::style::Style> for Style {
+    /// Convert a [`ratatui_core::style::Style`] to a `Style`
     ///
     /// # Data Loss
     ///
     /// Underline color is discarded during conversion.
-    fn from(value: ratatui::style::Style) -> Style {
+    fn from(value: ratatui_core::style::Style) -> Style {
         let foreground = value.fg.map(Color::from);
         let background = value.bg.map(Color::from);
         let enabled_attributes = AttributeSet::from(value.add_modifier);
