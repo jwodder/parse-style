@@ -1,4 +1,4 @@
-//! (De)serializing [`ratatui-core`] types
+//! (De)serializing [`ratatui_core`] types
 use serde::{de::Deserializer, ser::Serializer, Deserialize, Serialize};
 
 /// A module for use via `#[serde(with)]` for serializing & deserializing
