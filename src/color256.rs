@@ -2,7 +2,7 @@ use super::ParseColorError;
 use crate::color::Color;
 use crate::style::Style;
 use crate::util::strip_nocase_prefix;
-use phf::{phf_map, Map};
+use phf::{Map, phf_map};
 use std::fmt;
 use unicase::UniCase;
 
