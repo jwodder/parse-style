@@ -1,8 +1,8 @@
 [package]
 name = "parse-style"
-version = "0.2.0"
+version = "0.3.0-dev"
 edition = "2024"
-rust-version = "1.86"
+rust-version = "1.87"
 description = "Parse & display rich-compatible style strings"
 authors = ["John Thorvald Wodder II <parse-style@varonathe.org>"]
 repository = "https://github.com/jwodder/parse-style"
