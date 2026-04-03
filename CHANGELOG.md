@@ -1,6 +1,15 @@
 v0.3.0 (in development)
 -----------------------
 - Increased MSRV to 1.87
+- Added the following methods to `AttributeSet`:
+    - `len()`
+    - `insert()`
+    - `remove()`
+    - `clear()`
+    - `is_disjoint()`
+    - `is_subset()`
+    - `is_superset()`
+- Gave `AttributeSet` a `From<[Attribute; N]>` impl
 
 v0.2.0 (2025-12-26)
 -------------------

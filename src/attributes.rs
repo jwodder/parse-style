@@ -179,6 +179,15 @@ impl AttributeSet {
         self.0 == 0
     }
 
+    /// Returns the number of [`Attribute`]s in the set
+    pub fn len(self) -> usize {
+        let qty = self.0.count_ones();
+        match usize::try_from(qty) {
+            Ok(sz) => sz,
+            Err(_) => unreachable!("The number of bits in a u16 should fit in a usize"),
+        }
+    }
+
     /// Test whether the set contains all [`Attribute`]s
     pub fn is_all(self) -> bool {
         self == Self::ALL
@@ -188,11 +197,154 @@ impl AttributeSet {
     pub fn contains(self, attr: Attribute) -> bool {
         self.0 & (attr as u16) != 0
     }
+
+    /// Adds the given [`Attribute`] to the set if not already present.
+    ///
+    /// Returns `true` if the given `Attribute` was not already in the set.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use parse_style::{Attribute, AttributeSet};
+    ///
+    /// let mut attrset = AttributeSet::new();
+    /// assert!(!attrset.contains(Attribute::Bold));
+    /// assert!(attrset.insert(Attribute::Bold));
+    /// assert!(attrset.contains(Attribute::Bold));
+    /// assert!(!attrset.insert(Attribute::Bold));
+    /// assert!(attrset.contains(Attribute::Bold));
+    /// ```
+    pub fn insert(&mut self, attr: Attribute) -> bool {
+        let attr = attr as u16;
+        let adding = (self.0 & attr) == 0;
+        self.0 |= attr;
+        adding
+    }
+
+    /// Removes the given [`Attribute`] from the set if present.
+    ///
+    /// Returns `true` if the given `Attribute` was present in the set.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use parse_style::{Attribute, AttributeSet};
+    ///
+    /// let mut attrset = AttributeSet::from([Attribute::Bold]);
+    /// assert!(attrset.contains(Attribute::Bold));
+    /// assert!(attrset.remove(Attribute::Bold));
+    /// assert!(!attrset.contains(Attribute::Bold));
+    /// assert!(!attrset.remove(Attribute::Bold));
+    /// assert!(!attrset.contains(Attribute::Bold));
+    /// ```
+    pub fn remove(&mut self, attr: Attribute) -> bool {
+        let attr = attr as u16;
+        let present = (self.0 & attr) != 0;
+        self.0 &= !attr;
+        present
+    }
+
+    /// Removes all [`Attribute`]s from the set
+    pub fn clear(&mut self) {
+        *self = Self::default();
+    }
+
+    /// Returns true if `self` and `other` are disjoint, i.e., if there is no
+    /// [`Attribute`] that is in both sets.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use parse_style::{Attribute, AttributeSet};
+    ///
+    /// let attrset1 = AttributeSet::from([Attribute::Bold,
+    /// Attribute::Italic]);
+    /// let attrset2 = AttributeSet::from([Attribute::Underline,
+    /// Attribute::Blink]);
+    /// assert!(attrset1.is_disjoint(attrset2));
+    /// assert!(attrset2.is_disjoint(attrset1));
+    /// ```
+    ///
+    /// ```
+    /// use parse_style::{Attribute, AttributeSet};
+    ///
+    /// let attrset1 = AttributeSet::from([Attribute::Bold,
+    /// Attribute::Italic]);
+    /// let attrset2 = AttributeSet::from([Attribute::Bold,
+    /// Attribute::Underline]);
+    /// assert!(!attrset1.is_disjoint(attrset2));
+    /// assert!(!attrset2.is_disjoint(attrset1));
+    /// ```
+    pub fn is_disjoint(self, other: AttributeSet) -> bool {
+        self.0 & other.0 == 0
+    }
+
+    /// Returns `true` if `self` is a subset of `other`
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use parse_style::{Attribute, AttributeSet};
+    ///
+    /// let attrset1 = AttributeSet::from([Attribute::Bold]);
+    /// let attrset2 = AttributeSet::from([Attribute::Bold,
+    /// Attribute::Underline]);
+    /// assert!(attrset1.is_subset(attrset2));
+    /// assert!(!attrset2.is_subset(attrset1));
+    /// ```
+    ///
+    /// ```
+    /// use parse_style::{Attribute, AttributeSet};
+    ///
+    /// let attrset1 = AttributeSet::from([Attribute::Bold,
+    /// Attribute::Italic]);
+    /// let attrset2 = AttributeSet::from([Attribute::Bold,
+    /// Attribute::Underline]);
+    /// assert!(!attrset1.is_subset(attrset2));
+    /// assert!(!attrset2.is_subset(attrset1));
+    /// ```
+    pub fn is_subset(self, other: AttributeSet) -> bool {
+        self.0 & other.0 == self.0
+    }
+
+    /// Returns `true` if `self` is a superset of `other`
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use parse_style::{Attribute, AttributeSet};
+    ///
+    /// let attrset1 = AttributeSet::from([Attribute::Bold]);
+    /// let attrset2 = AttributeSet::from([Attribute::Bold,
+    /// Attribute::Underline]);
+    /// assert!(!attrset1.is_superset(attrset2));
+    /// assert!(attrset2.is_superset(attrset1));
+    /// ```
+    ///
+    /// ```
+    /// use parse_style::{Attribute, AttributeSet};
+    ///
+    /// let attrset1 = AttributeSet::from([Attribute::Bold,
+    /// Attribute::Italic]);
+    /// let attrset2 = AttributeSet::from([Attribute::Bold,
+    /// Attribute::Underline]);
+    /// assert!(!attrset1.is_superset(attrset2));
+    /// assert!(!attrset2.is_superset(attrset1));
+    /// ```
+    pub fn is_superset(self, other: AttributeSet) -> bool {
+        self.0 & other.0 == other.0
+    }
 }
 
 impl From<Attribute> for AttributeSet {
     fn from(value: Attribute) -> AttributeSet {
         AttributeSet(value as u16)
+    }
+}
+
+impl<const N: usize> From<[Attribute; N]> for AttributeSet {
+    fn from(value: [Attribute; N]) -> AttributeSet {
+        AttributeSet::from_iter(value)
     }
 }
 
