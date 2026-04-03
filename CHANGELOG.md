@@ -1,5 +1,5 @@
-v0.3.0 (in development)
------------------------
+v0.3.0 (2026-04-03)
+-------------------
 - Increased MSRV to 1.87
 - Added the following methods to `AttributeSet`:
     - `len()`
