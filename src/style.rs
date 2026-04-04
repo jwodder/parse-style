@@ -545,12 +545,20 @@ impl fmt::Display for Style {
                 if !std::mem::replace(&mut first, false) {
                     write!(f, " ")?;
                 }
-                write!(f, "{attr}")?;
+                if f.alternate() {
+                    write!(f, "{attr:#}")?;
+                } else {
+                    write!(f, "{attr}")?;
+                }
             } else if self.is_disabled(attr) {
                 if !std::mem::replace(&mut first, false) {
                     write!(f, " ")?;
                 }
-                write!(f, "not {attr}")?;
+                if f.alternate() {
+                    write!(f, "not {attr:#}")?;
+                } else {
+                    write!(f, "not {attr}")?;
+                }
             }
         }
         if let Some(fg) = self.foreground {
@@ -701,9 +709,21 @@ mod test {
         }
 
         #[test]
+        fn alt_attr() {
+            let style = Style::from(Attribute::Bold);
+            assert_eq!(format!("{style:#}"), "b");
+        }
+
+        #[test]
         fn multiple_attrs() {
             let style = Style::from(Attribute::Bold | Attribute::Reverse);
             assert_eq!(style.to_string(), "bold reverse");
+        }
+
+        #[test]
+        fn alt_multiple_attrs() {
+            let style = Style::from(Attribute::Bold | Attribute::Reverse);
+            assert_eq!(format!("{style:#}"), "b r");
         }
 
         #[test]
@@ -713,11 +733,25 @@ mod test {
         }
 
         #[test]
+        fn alt_not_attr() {
+            let style = Style::new().disable(Attribute::Bold);
+            assert_eq!(format!("{style:#}"), "not b");
+        }
+
+        #[test]
         fn multiple_not_attrs() {
             let style = Style::new()
                 .disable(Attribute::Bold)
                 .disable(Attribute::Reverse);
             assert_eq!(style.to_string(), "not bold not reverse");
+        }
+
+        #[test]
+        fn alt_multiple_not_attrs() {
+            let style = Style::new()
+                .disable(Attribute::Bold)
+                .disable(Attribute::Reverse);
+            assert_eq!(format!("{style:#}"), "not b not r");
         }
 
         #[test]
