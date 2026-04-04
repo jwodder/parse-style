@@ -2,6 +2,7 @@ v0.4.0 (in development)
 -----------------------
 - Gave `Attribute` an `as_short_str()` method
 - Displaying an `Attribute` with `{:#}` now produces the short name
+- Displaying a `Style` with `{:#}` now uses short attribute names
 
 v0.3.0 (2026-04-03)
 -------------------
