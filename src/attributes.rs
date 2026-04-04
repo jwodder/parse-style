@@ -24,8 +24,9 @@ use thiserror::Error;
 /// - `"overline"` — `Overline`
 ///
 /// `Attribute` values are [displayed][std::fmt::Display] as lowercase
-/// strings from the above list; for values with two strings, the longer
-/// one is used.
+/// strings from the above list.  For values with two strings, the longer
+/// one is used, unless the alternate display is selected with `"{:#}"`, in
+/// which case the shorter (if any) is used.
 #[derive(Clone, Copy, Debug, strum::EnumIter, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[repr(u16)]
 pub enum Attribute {
@@ -84,11 +85,44 @@ impl Attribute {
             Attribute::Overline => "overline",
         }
     }
+
+    /// Return the short name of the attribute, or the long name if it doesn't
+    /// have a short name
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use parse_style::Attribute;
+    ///
+    /// assert_eq!(Attribute::Bold.as_short_str(), "b");
+    /// assert_eq!(Attribute::Blink.as_short_str(), "blink");
+    /// ```
+    pub fn as_short_str(self) -> &'static str {
+        match self {
+            Attribute::Bold => "b",
+            Attribute::Dim => "d",
+            Attribute::Italic => "i",
+            Attribute::Underline => "u",
+            Attribute::Blink => "blink",
+            Attribute::Blink2 => "blink2",
+            Attribute::Reverse => "r",
+            Attribute::Conceal => "c",
+            Attribute::Strike => "s",
+            Attribute::Underline2 => "uu",
+            Attribute::Frame => "frame",
+            Attribute::Encircle => "encircle",
+            Attribute::Overline => "overline",
+        }
+    }
 }
 
 impl fmt::Display for Attribute {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
+        if f.alternate() {
+            f.write_str(self.as_short_str())
+        } else {
+            f.write_str(self.as_str())
+        }
     }
 }
 
@@ -655,17 +689,62 @@ pub struct ParseAttributeError(
 mod tests {
     use super::*;
 
-    #[test]
-    fn double_ended_iteration() {
-        let attrs = Attribute::Bold | Attribute::Frame | Attribute::Reverse | Attribute::Strike;
-        let mut iter = attrs.into_iter();
-        assert_eq!(iter.next(), Some(Attribute::Bold));
-        assert_eq!(iter.next_back(), Some(Attribute::Frame));
-        assert_eq!(iter.next(), Some(Attribute::Reverse));
-        assert_eq!(iter.next_back(), Some(Attribute::Strike));
-        assert_eq!(iter.next(), None);
-        assert_eq!(iter.next_back(), None);
-        assert_eq!(iter.next(), None);
-        assert_eq!(iter.next_back(), None);
+    mod attribute {
+        use super::*;
+        use rstest::rstest;
+
+        #[rstest]
+        #[case(Attribute::Bold, "bold")]
+        #[case(Attribute::Dim, "dim")]
+        #[case(Attribute::Italic, "italic")]
+        #[case(Attribute::Underline, "underline")]
+        #[case(Attribute::Blink, "blink")]
+        #[case(Attribute::Blink2, "blink2")]
+        #[case(Attribute::Reverse, "reverse")]
+        #[case(Attribute::Conceal, "conceal")]
+        #[case(Attribute::Strike, "strike")]
+        #[case(Attribute::Underline2, "underline2")]
+        #[case(Attribute::Frame, "frame")]
+        #[case(Attribute::Encircle, "encircle")]
+        #[case(Attribute::Overline, "overline")]
+        fn display(#[case] attr: Attribute, #[case] s: &str) {
+            assert_eq!(attr.to_string(), s);
+        }
+
+        #[rstest]
+        #[case(Attribute::Bold, "b")]
+        #[case(Attribute::Dim, "d")]
+        #[case(Attribute::Italic, "i")]
+        #[case(Attribute::Underline, "u")]
+        #[case(Attribute::Blink, "blink")]
+        #[case(Attribute::Blink2, "blink2")]
+        #[case(Attribute::Reverse, "r")]
+        #[case(Attribute::Conceal, "c")]
+        #[case(Attribute::Strike, "s")]
+        #[case(Attribute::Underline2, "uu")]
+        #[case(Attribute::Frame, "frame")]
+        #[case(Attribute::Encircle, "encircle")]
+        #[case(Attribute::Overline, "overline")]
+        fn alt_display(#[case] attr: Attribute, #[case] s: &str) {
+            assert_eq!(format!("{attr:#}"), s);
+        }
+    }
+
+    mod attribute_set {
+        use super::*;
+
+        #[test]
+        fn double_ended_iteration() {
+            let attrs = Attribute::Bold | Attribute::Frame | Attribute::Reverse | Attribute::Strike;
+            let mut iter = attrs.into_iter();
+            assert_eq!(iter.next(), Some(Attribute::Bold));
+            assert_eq!(iter.next_back(), Some(Attribute::Frame));
+            assert_eq!(iter.next(), Some(Attribute::Reverse));
+            assert_eq!(iter.next_back(), Some(Attribute::Strike));
+            assert_eq!(iter.next(), None);
+            assert_eq!(iter.next_back(), None);
+            assert_eq!(iter.next(), None);
+            assert_eq!(iter.next_back(), None);
+        }
     }
 }
