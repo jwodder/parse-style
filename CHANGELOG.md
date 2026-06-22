@@ -1,3 +1,7 @@
+v0.4.1 (in development)
+-----------------------
+- Update `phf` dependency to 0.14.0
+
 v0.4.0 (2026-04-04)
 -------------------
 - Gave `Attribute` an `as_short_str()` method
